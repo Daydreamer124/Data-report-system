@@ -2,7 +2,60 @@ import asyncio
 from playwright.async_api import async_playwright
 from playwright.sync_api import sync_playwright
 import os
-from typing import Optional
+import threading
+import http.server
+import socketserver
+import time
+from typing import Optional, Tuple
+
+# 添加一个简易的HTTP服务器类
+class SimpleHTTPServerHandler(http.server.SimpleHTTPRequestHandler):
+    """自定义HTTP处理器，支持CORS和自定义根目录"""
+    
+    def __init__(self, *args, **kwargs):
+        self.directory = kwargs.pop('directory', os.getcwd())
+        super().__init__(*args, **kwargs)
+    
+    def end_headers(self):
+        # 添加CORS头
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept')
+        super().end_headers()
+    
+    def log_message(self, format, *args):
+        # 静默日志
+        pass
+
+def start_http_server(root_dir, port=0) -> Tuple[int, socketserver.TCPServer]:
+    """
+    启动一个简易的HTTP服务器
+    
+    参数:
+        root_dir: 服务器根目录
+        port: 端口号(0表示自动选择可用端口)
+    
+    返回:
+        (port, server): 服务器使用的端口和服务器对象
+    """
+    # 创建处理器
+    handler = lambda *args, **kwargs: SimpleHTTPServerHandler(*args, directory=root_dir, **kwargs)
+    
+    # 创建服务器 - 注意不使用with语句，因为会自动关闭
+    httpd = socketserver.TCPServer(("localhost", port), handler)
+    
+    # 获取实际使用的端口
+    actual_port = httpd.server_address[1]
+    print(f"🌐 启动临时HTTP服务器于端口 {actual_port}，根目录: {root_dir}")
+    
+    # 创建服务器线程
+    server_thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    server_thread.start()
+    
+    # 等待服务器启动完成
+    time.sleep(1)
+    
+    return actual_port, httpd
 
 async def html_to_image(html_content: str, output_path: Optional[str] = None, width: int = 1280, height: int = None) -> str:
     """
@@ -55,7 +108,7 @@ def convert_html_to_image(html_content: str, output_path: Optional[str] = None) 
 
 def convert_html_file_to_image(html_file, output_path=None, debug=False):
     """
-    将HTML文件转换为图片，特别优化以确保AntV G2图表正确渲染
+    将HTML文件转换为图片，特别优化以确保Vega-Lite图表正确渲染
     
     参数:
         html_file: HTML文件路径
@@ -73,307 +126,251 @@ def convert_html_file_to_image(html_file, output_path=None, debug=False):
         print(f"开始处理HTML文件: {html_file}")
         print(f"输出路径: {output_path}")
     
-    # 使用 playwright 的同步 API
-    with sync_playwright() as playwright:
-        # 启动带有参数的浏览器，禁用沙箱可以减少一些问题
-        browser = playwright.chromium.launch(
-            args=['--no-sandbox', '--disable-setuid-sandbox'],
-            headless=True  # 无头浏览器模式
-        )
+    # 获取项目根目录
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
+    
+    # 启动临时HTTP服务器
+    httpd = None
+    try:
+        port, httpd = start_http_server(project_root)
         
-        # 创建页面对象
-        context = browser.new_context(
-            viewport={'width': 1280, 'height': 800},
-            device_scale_factor=1.5  # 提高渲染清晰度
-        )
-        page = context.new_page()
+        # 计算HTML文件的相对路径
+        rel_path = os.path.relpath(html_file, project_root)
+        url = f"http://localhost:{port}/{rel_path.replace(os.sep, '/')}"
         
+        if debug:
+            print(f"项目根目录: {project_root}")
+            print(f"启动HTTP服务器: http://localhost:{port}/")
+            print(f"访问HTML文件: {url}")
+        
+        # 验证服务器是否正常运行
+        import requests
         try:
-            # 加载HTML文件
-            page.goto(f"file://{os.path.abspath(html_file)}", 
-                      wait_until="domcontentloaded",  # 等待DOM内容加载
-                      timeout=60000)  # 增加超时时间到60秒
-            
-            if debug:
-                print("HTML文件已加载")
-            
-            # 等待DOM完全加载
-            page.wait_for_load_state("load", timeout=60000)
-            if debug:
-                print("页面完全加载")
-            
-            # 确保外部脚本加载完成
-            page.wait_for_load_state("networkidle", timeout=60000)
-            if debug:
-                print("网络请求已完成")
-            
-            # 检查页面中是否有AntV G2图表容器
-            has_antv_charts = page.evaluate("""
-                () => !!document.querySelector('div[id^="antv_chart_"]')
-            """)
-            
-            if has_antv_charts:
+            # 尝试访问服务器，确认可用
+            test_url = f"http://localhost:{port}/"
+            response = requests.get(test_url, timeout=5)
+            if response.status_code == 200:
                 if debug:
-                    print("发现AntV G2图表容器")
+                    print(f"HTTP服务器测试成功: 状态码 {response.status_code}")
+            else:
+                print(f"⚠️ HTTP服务器似乎不正常: 状态码 {response.status_code}")
+        except Exception as e:
+            print(f"⚠️ 无法连接到HTTP服务器: {e}")
+            return None
+        
+        # 使用 playwright 的同步 API
+        with sync_playwright() as playwright:
+            # 启动带有参数的浏览器，禁用沙箱可以减少一些问题
+            browser = playwright.chromium.launch(
+                args=['--no-sandbox', '--disable-setuid-sandbox'],
+                headless=True  # 无头浏览器模式
+            )
+            
+            try:
+                # 创建页面对象
+                context = browser.new_context(
+                    viewport={'width': 1600, 'height': 900},  # 增加视口大小
+                    device_scale_factor=1.5  # 提高渲染清晰度
+                )
+                page = context.new_page()
                 
-                # 等待AntV G2图表容器
-                try:
-                    page.wait_for_selector('div[id^="antv_chart_"]', state="attached", timeout=30000)
-                    if debug:
-                        print("AntV G2图表容器已附加到DOM")
-                except Exception as e:
-                    if debug:
-                        print(f"等待图表容器时出错: {e}")
+                # 加载HTML文件(通过HTTP服务器)
+                page.goto(url, 
+                        wait_until="domcontentloaded",  # 等待DOM内容加载
+                        timeout=60000)  # 增加超时时间到60秒
                 
-                # 检查并等待图表初始化完成
-                try:
-                    # 注入监听脚本，用于检测图表初始化和渲染完成
-                    page.add_script_tag(content="""
-                    window.chartsInitialized = false;
-                    window.chartsRendered = false;
+                if debug:
+                    print("HTML文件已加载")
+                
+                # 等待DOM完全加载
+                page.wait_for_load_state("load", timeout=60000)
+                if debug:
+                    print("页面完全加载")
+                
+                # 确保外部脚本加载完成
+                page.wait_for_load_state("networkidle", timeout=60000)
+                if debug:
+                    print("网络请求已完成")
+                
+                # 检查是否有Vega-Lite图表
+                has_vega = page.evaluate("""
+                    () => {
+                        const hasVegaEmbed = typeof vegaEmbed !== 'undefined';
+                        const hasVegaEmbedTag = !!document.querySelector('script[src*="vega-embed"]');
+                        console.log('Has vegaEmbed global:', hasVegaEmbed);
+                        console.log('Has vega-embed script tag:', hasVegaEmbedTag);
+                        return hasVegaEmbed || hasVegaEmbedTag;
+                    }
+                """)
+                
+                if has_vega:
+                    if debug:
+                        print("发现Vega-Lite图表")
                     
-                    // 创建一个Promise，当所有图表渲染完成时解析
-                    window.waitForChartsRendered = new Promise((resolve) => {
-                        // 检查window.chartInstances对象
-                        function checkChartInstances() {
-                            if (window.chartInstances && Object.keys(window.chartInstances).length > 0) {
-                                const charts = Object.values(window.chartInstances);
-                                window.chartsInitialized = true;
-                                console.log('图表实例已初始化: ' + charts.length + '个');
-                                
-                                // 检查每个图表容器是否有内容
-                                const chartContainers = document.querySelectorAll('div[id^="antv_chart_"]');
-                                let allRendered = true;
-                                
-                                chartContainers.forEach(container => {
-                                    // 检查容器中是否有canvas元素或其他G2渲染的元素
-                                    const hasContent = container.querySelector('canvas') !== null;
-                                    if (!hasContent) {
-                                        allRendered = false;
-                                        console.log('图表容器 ' + container.id + ' 未渲染内容');
-                                    }
-                                });
-                                
-                                window.chartsRendered = allRendered;
-                                if (allRendered) {
-                                    console.log('所有图表已完成渲染');
-                                    resolve(true);
-                                } else {
-                                    console.log('部分图表未渲染，尝试触发重绘');
-                                    // 尝试重绘
-                                    triggerChartRender();
-                                    // 延迟再次检查
-                                    setTimeout(checkAgain, 2000);
-                                }
-                            } else {
-                                console.log('未找到图表实例，等待DOMContentLoaded事件');
-                                // 等待DOMContentLoaded事件，可能图表初始化在此事件后
-                                if (document.readyState === 'complete') {
-                                    // 如果DOM已经加载完成但没有找到图表实例，尝试强制初始化
-                                    triggerChartRender();
-                                    setTimeout(checkAgain, 2000);
-                                } else {
-                                    document.addEventListener('DOMContentLoaded', function() {
-                                        setTimeout(checkAgain, 1000);
-                                    });
-                                }
-                            }
-                        }
+                    # 等待Vega-Lite加载完成
+                    page.wait_for_function("""
+                        () => typeof vegaEmbed !== 'undefined'
+                    """, timeout=30000)
+                    
+                    # 等待图表容器
+                    try:
+                        page.wait_for_selector('.vega-embed', state="attached", timeout=10000)
+                        if debug:
+                            print("找到Vega-Lite图表容器")
+                    except Exception as e:
+                        if debug:
+                            print(f"等待Vega-Lite图表容器失败: {e}")
+                    
+                    # 添加帮助脚本来检查和强制渲染图表
+                    page.add_script_tag(content="""
+                    window.checkVegaRenderStatus = function() {
+                        const containers = document.querySelectorAll('.vega-embed');
+                        console.log('Found ' + containers.length + ' Vega-Lite containers');
                         
-                        // 重新检查图表渲染状态
-                        function checkAgain() {
-                            const chartContainers = document.querySelectorAll('div[id^="antv_chart_"]');
-                            let allRendered = true;
+                        let allRendered = true;
+                        let details = [];
+                        
+                        containers.forEach((container, i) => {
+                            const hasCanvas = !!container.querySelector('canvas');
+                            const hasMarks = !!container.querySelector('.marks');
+                            const hasSVG = !!container.querySelector('svg');
                             
-                            if (chartContainers.length === 0) {
-                                console.log('未找到图表容器，可能图表未正确初始化');
-                                resolve(false);
-                                return;
-                            }
-                            
-                            chartContainers.forEach(container => {
-                                const hasContent = container.querySelector('canvas') !== null;
-                                if (!hasContent) {
-                                    allRendered = false;
-                                    console.log('图表容器 ' + container.id + ' 仍未渲染内容');
-                                }
+                            details.push({
+                                id: container.id || `container-${i}`,
+                                hasCanvas,
+                                hasMarks,
+                                hasSVG
                             });
                             
-                            window.chartsRendered = allRendered;
-                            if (allRendered) {
-                                console.log('所有图表已完成渲染');
-                                resolve(true);
-                            } else {
-                                console.log('部分图表仍未渲染，使用备用方法');
-                                // 尝试最后的备用方法
-                                forceRenderCharts();
-                                // 无论成功与否，最终解析Promise
-                                setTimeout(() => resolve(false), 2000);
+                            if (!(hasCanvas || hasMarks || hasSVG)) {
+                                allRendered = false;
                             }
-                        }
+                        });
                         
-                        // 触发图表重绘
-                        function triggerChartRender() {
-                            try {
-                                // 模拟窗口resize事件，通常会触发图表重绘
-                                window.dispatchEvent(new Event('resize'));
-                                console.log('已触发窗口resize事件');
-                                
-                                // 如果存在chartInstances对象，尝试调用render方法
-                                if (window.chartInstances) {
-                                    Object.values(window.chartInstances).forEach(function(chart) {
-                                        if (chart && typeof chart.render === 'function') {
-                                            chart.render();
-                                            console.log('已调用图表render方法');
-                                        }
-                                    });
-                                }
-                            } catch (e) {
-                                console.error('尝试重绘图表时出错:', e);
-                            }
-                        }
-                        
-                        // 强制渲染图表的最后尝试
-                        function forceRenderCharts() {
-                            try {
-                                // 搜索页面中的所有初始化图表的函数
-                                const initFunctions = [];
-                                for (let key in window) {
-                                    if (typeof window[key] === 'function' && 
-                                        key.toLowerCase().includes('chart') && 
-                                        key.toLowerCase().includes('init')) {
-                                        initFunctions.push(window[key]);
-                                        console.log('找到可能的图表初始化函数: ' + key);
-                                    }
-                                }
-                                
-                                // 尝试调用这些函数
-                                initFunctions.forEach(func => {
+                        return {
+                            allRendered,
+                            details,
+                            count: containers.length
+                        };
+                    };
+                    
+                    // 强制触发所有图表重新渲染
+                    window.forceRenderCharts = function() {
+                        console.log("强制触发所有图表重新渲染");
+                        if (window.chartInstances) {
+                            Object.values(window.chartInstances).forEach(function(chart) {
+                                if (chart && chart.view) {
                                     try {
-                                        func();
-                                        console.log('已调用可能的初始化函数');
-                                    } catch (e) {
-                                        console.error('调用初始化函数失败:', e);
+                                        chart.view.resize().run();
+                                        console.log("重新渲染图表:", chart.el.id);
+                                    } catch(e) {
+                                        console.error("重新渲染图表失败:", e);
                                     }
-                                });
-                                
-                                // 最后一次触发resize事件
-                                window.dispatchEvent(new Event('resize'));
-                            } catch (e) {
-                                console.error('强制渲染图表失败:', e);
-                            }
+                                }
+                            });
                         }
                         
-                        // 立即开始检查
-                        checkChartInstances();
-                    });
+                        // 对于可能未包含在chartInstances中的图表，尝试重新调用vegaEmbed
+                        document.querySelectorAll('.vega-embed').forEach((container, i) => {
+                            const chartId = container.id || `vega-embed-${i}`;
+                            const chartDiv = container.querySelector('.chart-container') || container;
+                            
+                            if (!container.querySelector('canvas')) {
+                                console.log(`容器 ${chartId} 没有canvas，尝试触发重新渲染`);
+                                // 触发resize事件可能会帮助某些图表重新渲染
+                                const event = new Event('resize');
+                                window.dispatchEvent(event);
+                            }
+                        });
+                        
+                        return "已尝试重新渲染所有图表";
+                    };
                     """)
                     
-                    # 等待足够长的时间让图表渲染
-                    try:
-                        page.wait_for_timeout(3000)
-                        
-                        # 检查图表是否已初始化和渲染
-                        charts_initialized = page.evaluate("window.chartsInitialized")
-                        charts_rendered = page.evaluate("window.chartsRendered")
-                        
+                    # 等待一段时间让图表初始渲染
+                    page.wait_for_timeout(3000)
+                    
+                    # 检查渲染状态
+                    render_status = page.evaluate("window.checkVegaRenderStatus()")
+                    
+                    if debug:
+                        print(f"图表渲染状态: {render_status}")
+                        if render_status.get('allRendered', False):
+                            print("所有图表已渲染")
+                        else:
+                            print(f"部分图表未渲染，发现{render_status.get('count', 0)}个容器")
+                            for detail in render_status.get('details', []):
+                                print(f"  容器 {detail.get('id')}: canvas={detail.get('hasCanvas')}, marks={detail.get('hasMarks')}, svg={detail.get('hasSVG')}")
+                    
+                    # 强制触发图表重新渲染
+                    force_render_result = page.evaluate("window.forceRenderCharts()")
+                    if debug:
+                        print(f"强制渲染结果: {force_render_result}")
+                    
+                    # 等待更长时间确保渲染完成
+                    page.wait_for_timeout(8000)  # 增加到8秒
+                    
+                    # 再次检查渲染状态
+                    render_status_after = page.evaluate("window.checkVegaRenderStatus()")
+                    if debug:
+                        print(f"强制渲染后状态: {render_status_after}")
+                    
+                    # 如果仍有图表未渲染，再次尝试强制渲染
+                    if not render_status_after.get('allRendered', False):
                         if debug:
-                            if charts_initialized:
-                                print("图表已初始化完成")
-                            else:
-                                print("未检测到图表初始化完成")
-                        
-                            if charts_rendered:
-                                print("图表已完全渲染")
-                            else:
-                                print("图表渲染可能未完成")
-                        
-                        # 等待渲染完成Promise解析结果
-                        try:
-                            wait_result = page.evaluate("window.waitForChartsRendered")
-                            if debug and wait_result:
-                                print("等待图表渲染的Promise已解析: " + str(wait_result))
-                        except Exception as e:
-                            if debug:
-                                print(f"等待图表渲染Promise时出错: {e}")
-                        
-                        # 额外注入脚本触发图表重绘（再次尝试）
-                        page.add_script_tag(content="""
-                        try {
-                            // 尝试获取所有G2图表容器
-                            var chartContainers = document.querySelectorAll('div[id^="antv_chart_"]');
-                            console.log('找到 ' + chartContainers.length + ' 个图表容器');
-                            
-                            // 如果有图表容器，尝试手动触发渲染
-                            if (chartContainers.length > 0) {
-                                // 创建并触发resize事件，这通常会导致图表重绘
-                                window.dispatchEvent(new Event('resize'));
-                                console.log('已触发窗口resize事件');
-                            }
-                            
-                            // 如果存在chartInstances对象，尝试调用render方法
-                            if (window.chartInstances) {
-                                Object.values(window.chartInstances).forEach(function(chart) {
-                                    if (chart && typeof chart.render === 'function') {
-                                        chart.render();
-                                        console.log('已调用图表render方法');
-                                    }
-                                });
-                            }
-                        } catch (e) {
-                            console.error('尝试重绘图表时出错:', e);
-                        }
-                        """)
-                        
-                        # 再次等待以确保重绘完成
+                            print("再次尝试强制渲染...")
+                        page.evaluate("window.forceRenderCharts()")
                         page.wait_for_timeout(5000)
-                        
-                    except Exception as e:
+                
+                # 等待图片元素（如果有的话）
+                try:
+                    has_images = page.evaluate("!!document.querySelector('img')")
+                    if has_images:
                         if debug:
-                            print(f"等待图表初始化时出错: {e}")
-                    else:
-                        if debug:
-                            print("页面中未找到AntV G2图表容器")
-                    
-                    # 等待图片元素（如果有的话）
-                    try:
-                        has_images = page.evaluate("!!document.querySelector('img')")
-                        if has_images:
-                            if debug:
-                                print("页面包含图片元素，等待图片加载")
-                            page.wait_for_selector("img", state="visible", timeout=30000)
-                    except Exception as e:
-                        if debug:
-                            print(f"等待图片元素时出错: {e}")
-                    
-                    # 最后的等待，确保所有渲染都完成
-                    page.wait_for_timeout(5000)
-                    if debug:
-                        print("最终等待完成，准备截图")
-                    
-                    # 获取页面实际高度并设置视口
-                    height = page.evaluate("document.documentElement.scrollHeight")
-                    page.set_viewport_size({"width": 1280, "height": height})
-                    
-                    # 截图
-                    page.screenshot(path=output_path, full_page=True)
-                    if debug:
-                        print(f"截图完成: {output_path}")
-                    
+                            print("页面包含图片元素，等待图片加载")
+                        page.wait_for_selector("img", state="visible", timeout=30000)
                 except Exception as e:
-                    print(f"截图过程中出错: {e}")
-                    import traceback
-                    traceback.print_exc()
-                finally:
-                    browser.close()
-            
-            return output_path 
-        except Exception as e:
-            print(f"加载HTML文件时出错: {e}")
-            if debug:
+                    if debug:
+                        print(f"等待图片元素时出错: {e}")
+                
+                # 最后的等待，确保所有渲染都完成
+                page.wait_for_timeout(5000)
+                if debug:
+                    print("最终等待完成，准备截图")
+                
+                # 获取页面实际高度并设置视口
+                height = page.evaluate("document.documentElement.scrollHeight")
+                page.set_viewport_size({"width": 1600, "height": height})
+                
+                # 截图
+                page.screenshot(path=output_path, full_page=True)
+                if debug:
+                    print(f"截图完成: {output_path}")
+                    
+                return output_path
+                    
+            except Exception as e:
+                print(f"截图过程中出错: {e}")
+                import traceback
                 traceback.print_exc()
-            browser.close()
-            return None
+                return None
+            finally:
+                browser.close()
+    except Exception as e:
+        print(f"启动服务器时出错: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+    finally:
+        # 关闭HTTP服务器
+        if httpd:
+            try:
+                httpd.shutdown()
+                httpd.server_close()
+                if debug:
+                    print("HTTP服务器已关闭")
+            except:
+                pass
 
 def test_html_to_image():
     """测试函数：测试将HTML文件转换为图片"""

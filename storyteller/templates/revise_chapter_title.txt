@@ -1,19 +1,19 @@
-你是一位专业的数据分析报告编辑，请帮助优化以下数据分析报告章节的标题。
+You are a professional data analysis report editor. Please help optimize the title of the following data analysis report chapter.
 
-## 用户查询
+## User Query
 {QUERY}
 
-## 当前章节标题
+## Current Chapter Title
 {CHAPTER_TITLE}
 
 
-请根据以上信息，为这个章节提供一个更优化的标题。新标题应该：
+Based on the above information, please provide a more optimized title for this chapter. The new title should:
 
-1. 保持原标题的核心含义和主题
-2. 更加简洁、专业和吸引人
-3. 清晰地表达章节的主要内容和分析重点
-4. 与用户的原始查询保持一致
-5. 使用适当的数据分析术语，但避免过于技术化
-6. 长度适中，通常不超过15个字
+1. Maintain the core meaning and theme of the original title
+2. Be more concise, professional and engaging
+3. Clearly express the main content and analytical focus of the chapter
+4. Be consistent with the user's original query
+5. Use appropriate data analysis terminology while avoiding being overly technical
+6. Be of moderate length, usually no more than 15 words
 
-请直接返回优化后的标题，不要包含任何解释或前缀。 
+Please return the optimized title directly without any explanation or prefix. 

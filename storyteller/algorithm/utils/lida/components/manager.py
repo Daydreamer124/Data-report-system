@@ -62,6 +62,7 @@ class Manager(object):
         self,
         summary,
         goal,
+        data,
         textgen_config: TextGenerationConfig = TextGenerationConfig(),
         #library="seaborn",
         library="matplotlib",
@@ -78,7 +79,7 @@ class Manager(object):
             library=library)
         charts = self.execute(
             code_specs=code_specs,
-            data=self.data,
+            data=data,
             summary=summary,
             library=library,
             return_error=return_error,

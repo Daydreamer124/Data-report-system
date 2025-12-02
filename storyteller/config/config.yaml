@@ -1,20 +1,21 @@
-query: "Analyze the difference between the customers"
-dataset_path: "/Users/zhangzhiyang/mcts/storyteller/dataset/shopping.csv"
+query: "Are average medical costs in different regions jointly influenced by age and BMI?"
+#dataset_path: "/Users/zhangzhiyang/mcts/storyteller/dataset/shopping.csv"
+dataset_path: "/Users/zhangzhiyang/mcts/storyteller/dataset/insurance.csv"
 save_root_dir: "storyteller/output" 
-max_iterations: 1
+max_iterations: 3
 max_depth: 35
 exploration_constant: 1.4
 data_context: "/Users/zhangzhiyang/mcts/storyteller/dataset/data_context.json"
 llm_kwargs:
   temperature: 0.7
   model: "gpt-4o"
-  base_url: "https://vip.yi-zhan.top/v1"
-  api_key: "sk-N3NMJtA44V4Qu5NhB18cE97331734788Bc18A77b8fC1DaD6"
+  base_url: "url"
+  api_key: "key"
 
   #model: "gpt-4-32k"
-  #api_key: "d74fffb357284e028df324ae812543b31e30e7b89bad4e408bcd61832c28d161"
-  #base_url: "https://gpt-api.hkust-gz.edu.cn/v1"
+  #api_key: "key"
 # 历史记录配置
 history:
   save_iterations: true  # 是否保存迭代历史
   save_dir: "iterations"  # 历史记录保存目录名
+

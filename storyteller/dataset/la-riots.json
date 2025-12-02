@@ -1,0 +1,243 @@
+{
+  "name": "la-riots.csv",
+  "dataset_description": "This dataset contains information about individuals who died during or around the time of the LA riots, with details on their demographics, the circumstances of their deaths, and the locations of the incidents. Important categorical columns include 'gender' with 2 categories (Male, Female), 'race' with 4 categories (Latino, Black, etc.), and 'type' with 4 categories (Officer-involved shooting, Not riot-related, Homicide, Death). The 'age' column ranges from 15 to 87 years, with a mean age of approximately 32.37 years. The geographical coordinates are provided with 'longitude' ranging from -118.4717452 to -117.7306469 and 'latitude' ranging from 33.7898575 to 34.287098. The dataset spans a time period from April 29, 1992, to November 24, 1993, covering 574 days.",
+  "total_rows": 63,
+  "total_columns": 11,
+  "fields_info": {
+    "first_name": {
+      "dtype": "object",
+      "num_unique_values": 63,
+      "missing_values": 0,
+      "semantic_type": "TEXT"
+    },
+    "last_name": {
+      "dtype": "object",
+      "num_unique_values": 58,
+      "missing_values": 0,
+      "semantic_type": "TEXT"
+    },
+    "age": {
+      "dtype": "float64",
+      "num_unique_values": 30,
+      "missing_values": 1,
+      "semantic_type": "NUMERIC"
+    },
+    "gender": {
+      "dtype": "object",
+      "num_unique_values": 2,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "race": {
+      "dtype": "object",
+      "num_unique_values": 4,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "death_date": {
+      "dtype": "object",
+      "num_unique_values": 10,
+      "missing_values": 0,
+      "semantic_type": "DATETIME"
+    },
+    "address": {
+      "dtype": "object",
+      "num_unique_values": 58,
+      "missing_values": 0,
+      "semantic_type": "TEXT"
+    },
+    "neighborhood": {
+      "dtype": "object",
+      "num_unique_values": 38,
+      "missing_values": 0,
+      "semantic_type": "TEXT"
+    },
+    "type": {
+      "dtype": "object",
+      "num_unique_values": 4,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "longitude": {
+      "dtype": "float64",
+      "num_unique_values": 63,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "latitude": {
+      "dtype": "float64",
+      "num_unique_values": 63,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    }
+  },
+  "categorical_details": {
+    "first_name": {
+      "unique_values": {
+        "Cesar A.": 1,
+        "William": 1,
+        "Ira F.": 1,
+        "Alfred V.": 1,
+        "Arturo C.": 1,
+        "Suzanne R.": 1,
+        "Nissar": 1,
+        "Ernest": 1,
+        "Anthony": 1,
+        "Charles W.": 1,
+        "Meeker": 1,
+        "Matthew D.": 1,
+        "Jimmie": 1,
+        "DeAndre": 1,
+        "Paul D.": 1,
+        "Betty": 1,
+        "Dennis Ray": 1,
+        "Tranh": 1,
+        "Edward Song": 1,
+        "Willie Bernard": 1
+      },
+      "total_categories": 63
+    },
+    "last_name": {
+      "unique_values": {
+        "Taylor": 3,
+        "Alvarez": 2,
+        "Garcia": 2,
+        "Jackson": 2,
+        "Miller": 1,
+        "Miranda": 1,
+        "Morgan": 1,
+        "Mustafa": 1,
+        "Neal Jr.": 1,
+        "Netherly": 1,
+        "Garnica": 1,
+        "Gibson": 1,
+        "Haines": 1,
+        "Harris": 1,
+        "Harrison": 1,
+        "Horace": 1,
+        "Lam": 1,
+        "Lee": 1,
+        "Lopez": 1,
+        "Williams": 1
+      },
+      "total_categories": 58
+    },
+    "gender": {
+      "unique_values": {
+        "Male": 56,
+        "Female": 7
+      },
+      "total_categories": 2
+    },
+    "race": {
+      "unique_values": {
+        "Black": 28,
+        "Latino": 19,
+        "White": 14,
+        "Asian": 2
+      },
+      "total_categories": 4
+    },
+    "address": {
+      "unique_values": {
+        "Santa Monica Boulevard & Seward Street": 3,
+        "11322 Alvaro St.": 2,
+        "4365 S. Vermont Ave.": 2,
+        "Western Avenue & 92nd Street": 2,
+        "2009 W. 6th St.": 1,
+        "11690 Gateway Blvd.": 1,
+        "near North Los Robles Avenue & Claremont Street": 1,
+        "Avalon Boulevard & 102nd Street": 1,
+        "Florence Avenue & Cimarron Street": 1,
+        "120th Street & Central Avenue": 1,
+        "10700 block of Burin Avenue": 1,
+        "12834 Vanowen St.": 1,
+        "2034 W. Pico Blvd.": 1,
+        "Holt & Loranne avenues": 1,
+        "Lemon Avenue & Pacific Coast Highway": 1,
+        "Avalon Boulevard & Slauson Avenue": 1,
+        "Central Avenue & 112th Street": 1,
+        "1439 E. Walnut": 1,
+        "Main & 51st streets": 1,
+        "Gage & Western avenues": 1
+      },
+      "total_categories": 58
+    },
+    "neighborhood": {
+      "unique_values": {
+        "Compton": 4,
+        "Vermont Square": 4,
+        "Koreatown": 4,
+        "Hollywood": 4,
+        "Green Meadows": 3,
+        "Watts": 3,
+        "South Park": 3,
+        "Mission Hills": 2,
+        "Chesterfield Square": 2,
+        "Gramercy Park": 2,
+        "Pomona": 1,
+        "Valley Glen": 1,
+        "Lennox": 1,
+        "Boyle Heights": 1,
+        "Del Rey": 1,
+        "Hyde Park": 1,
+        "Vermont-Slauson": 1,
+        "Harvard Park": 1,
+        "Hawthorne": 1,
+        "Pacoima": 1
+      },
+      "total_categories": 38
+    },
+    "type": {
+      "unique_values": {
+        "Homicide": 36,
+        "Officer-involved shooting": 10,
+        "Not riot-related": 9,
+        "Death": 8
+      },
+      "total_categories": 4
+    }
+  },
+  "numerical_details": {
+    "age": {
+      "min": 15.0,
+      "max": 87.0,
+      "mean": 32.37096774193548,
+      "std": 14.253252572103964,
+      "quartiles": {
+        "25%": 21.25,
+        "50%": 30.5,
+        "75%": 38.0
+      }
+    },
+    "longitude": {
+      "min": -118.4717452,
+      "max": -117.7306469,
+      "mean": -118.27991025222222,
+      "std": 0.10519826121287938,
+      "quartiles": {
+        "25%": -118.30991335,
+        "50%": -118.2914954,
+        "75%": -118.25347665
+      }
+    },
+    "latitude": {
+      "min": 33.7898575,
+      "max": 34.287098,
+      "mean": 34.026713431587304,
+      "std": 0.09847129539812825,
+      "quartiles": {
+        "25%": 33.971480299999996,
+        "50%": 34.005485,
+        "75%": 34.069611550000005
+      }
+    }
+  },
+  "datetime_details": {
+    "death_date": {
+      "min_date": "1992-04-29",
+      "max_date": "1993-11-24",
+      "date_range_days": 574
+    }
+  }
+}

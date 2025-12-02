@@ -1,0 +1,92 @@
+{
+  "name": "flights-airport.csv",
+  "dataset_description": "This dataset contains information about flights between various airports, represented by their IATA airport codes. It includes 5366 records detailing the number of flights from an origin airport to a destination airport. The dataset features two important categorical columns: 'origin' with 303 unique airport codes and 'destination' with 304 unique airport codes. The numerical column 'count' represents the number of flights, with values ranging from a minimum of 1 to a maximum of 13788 flights. The average number of flights is approximately 1306, with a standard deviation of 1593. The quartiles for the 'count' column are 293 (25th percentile), 777 (50th percentile), and 1718.5 (75th percentile). There are no date columns in this dataset.",
+  "total_rows": 5366,
+  "total_columns": 3,
+  "fields_info": {
+    "origin": {
+      "dtype": "object",
+      "num_unique_values": 303,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "destination": {
+      "dtype": "object",
+      "num_unique_values": 304,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "count": {
+      "dtype": "int64",
+      "num_unique_values": 2341,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    }
+  },
+  "categorical_details": {
+    "origin": {
+      "unique_values": {
+        "ATL": 173,
+        "ORD": 149,
+        "DFW": 134,
+        "DEN": 127,
+        "MSP": 126,
+        "DTW": 118,
+        "IAH": 114,
+        "SLC": 114,
+        "CVG": 113,
+        "EWR": 92,
+        "MOT": 1,
+        "FLG": 1,
+        "SJT": 1,
+        "BGM": 1,
+        "PUB": 1,
+        "FLO": 1,
+        "MEI": 1,
+        "SMX": 1,
+        "GFK": 1,
+        "ITH": 1
+      },
+      "total_categories": 303
+    },
+    "destination": {
+      "unique_values": {
+        "ATL": 173,
+        "ORD": 148,
+        "DFW": 134,
+        "MSP": 126,
+        "DEN": 122,
+        "DTW": 118,
+        "CVG": 113,
+        "IAH": 112,
+        "SLC": 111,
+        "LAS": 91,
+        "TYR": 1,
+        "BGM": 1,
+        "ELM": 1,
+        "ERI": 1,
+        "BQK": 1,
+        "ACY": 1,
+        "ABY": 1,
+        "BPT": 1,
+        "BRO": 1,
+        "YKM": 1
+      },
+      "total_categories": 304
+    }
+  },
+  "numerical_details": {
+    "count": {
+      "min": 1.0,
+      "max": 13788.0,
+      "mean": 1306.3227730152814,
+      "std": 1593.373114731961,
+      "quartiles": {
+        "25%": 293.0,
+        "50%": 777.0,
+        "75%": 1718.5
+      }
+    }
+  },
+  "datetime_details": {}
+}

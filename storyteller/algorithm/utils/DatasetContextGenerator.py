@@ -6,6 +6,22 @@ import openai
 import os
 from typing import Dict, Union, List, Optional
 from openai import OpenAI
+from datetime import datetime
+
+
+# 自定义JSON编码器以处理pandas的Timestamp对象
+class CustomJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if pd.api.types.is_datetime64_any_dtype(obj) or isinstance(obj, pd.Timestamp):
+            return obj.strftime("%Y-%m-%d")
+        elif isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        else:
+            return super().default(obj)
 
 
 class DatasetContextGenerator:
@@ -32,92 +48,164 @@ class DatasetContextGenerator:
             n_samples: int = 5
         ) -> Dict:
         """
-        生成 JSON 格式的数据集上下文信息
+        生成符合data_context.json格式的数据集上下文信息
         
         参数：
         - data (pd.DataFrame | str): 数据集或 CSV 文件路径
         - dataset_name (str): 数据集名称
-        - dataset_description (str): **用户提供的数据集描述，默认为空**
+        - dataset_description (str): 数据集描述，默认为空
         - n_samples (int): 生成列全名时参考的样本行数
         
         返回：
         - Dict: JSON 结构化数据集信息
         """
         if isinstance(data, str):
-            dataset_name = dataset_name or data.split("/")[-1]
+            file_name = dataset_name or data.split("/")[-1]
             try:
-                # 首先尝试 UTF-8 编码
-                data = pd.read_csv(data)
+                # 首先尝试 UTF-8 编码，保持原始列名
+                df = pd.read_csv(data)
+                # 输出读取到的列名，用于调试
+                print(f"读取到的CSV列名: {df.columns.tolist()}")
             except UnicodeDecodeError:
                 # 如果 UTF-8 失败，尝试 latin1 编码
                 print(f"UTF-8 编码失败，尝试使用 latin1 编码读取文件: {data}")
-                data = pd.read_csv(data, encoding='latin1')
+                df = pd.read_csv(data, encoding='latin1')
+                print(f"使用latin1编码读取到的CSV列名: {df.columns.tolist()}")
             
             # 打印实际行数和列数
-            print(f"数据集 {dataset_name} 实际行数: {len(data)}, 列数: {len(data.columns)}")
-            print(f"数据集列名: {data.columns.tolist()}")
+            print(f"数据集 {file_name} 实际行数: {len(df)}, 列数: {len(df.columns)}")
+            print(f"数据集列名: {df.columns.tolist()}")
             
-            # 检查是否有重复行
-            duplicates = data.duplicated().sum()
-            if duplicates > 0:
-                print(f"数据集包含 {duplicates} 行重复数据")
-                
-                # 可选：删除重复行
-                # data = data.drop_duplicates()
-                # print(f"删除重复行后，数据集行数: {len(data)}")
+        else:
+            df = data
+            file_name = dataset_name or "dataset"
+        
+        # 尝试转换日期列，但保留原始列名
+        df = self._try_parse_dates(df)
+        
+        # 对于日期列，我们需要将其转换为字符串以便JSON序列化
+        date_cols = df.select_dtypes(include=['datetime64']).columns
+        for col in date_cols:
+            df[col] = df[col].dt.strftime("%Y-%m-%d")
 
-        total_rows, total_columns = data.shape
-        column_names = data.columns.tolist()
-        sample_data = data.head(n_samples).to_dict(orient="records")
+        # **1️⃣ 计算类别列 & 数值列 & 日期列**
+        data_types, categorical_columns, category_distribution, numerical_columns, datetime_columns = self._analyze_columns(df)
 
-        # **1️⃣ 计算类别列 & 数值列**
-        data_types, categorical_columns, category_distribution, numerical_columns = self._analyze_columns(data)
-
-        # **2️⃣ 一次 LLM 调用生成【完整列名】+【数据集摘要】+【英文列名映射】**
-        llm_result = self._generate_column_names_and_summary_with_english_mapping(
-            dataset_name, total_rows, total_columns, column_names, sample_data, data_types, categorical_columns, numerical_columns
+        # **2️⃣ 一次 LLM 调用生成【完整列名】+【数据集摘要】**
+        # 准备样本数据，确保可以序列化
+        sample_data = df.head(n_samples).to_dict(orient="records")
+        
+        llm_result = self._generate_column_names_and_summary(
+            file_name, len(df), len(df.columns), df.columns.tolist(), 
+            sample_data, data_types, 
+            categorical_columns, numerical_columns, datetime_columns
         )
 
-        full_column_names = llm_result.get("full_column_names", {col: col for col in column_names})
-        dataset_summary = llm_result.get("dataset_summary", "暂无摘要信息")
-        english_column_mapping = llm_result.get("english_column_mapping", {})
+        # 确保使用原始列名作为键
+        original_columns = df.columns.tolist()
+        full_column_names = llm_result.get("full_column_names", {})
+        # 确保所有列名都在full_column_names中
+        for col in original_columns:
+            if col not in full_column_names:
+                full_column_names[col] = col
+                
+        dataset_summary = llm_result.get("dataset_summary", dataset_description or "暂无摘要信息")
 
-        # 字段语义类型映射
-        field_semantic_types = self._generate_field_semantic_types(data, categorical_columns, numerical_columns)
-
-        # **3️⃣ 组织 JSON 结构**
+        # **3️⃣ 组织 JSON 结构 (按照data_context.json格式)**
         dataset_context = {
-            "name": dataset_name,
-            "dataset_description": dataset_description or dataset_summary,  # 用户提供或LLM生成
-            "total_rows": total_rows,
-            "total_columns": total_columns,
-            "fields_info": {
-                col: {
-                    "dtype": data_types.get(col, "unknown"),
-                    "num_unique_values": categorical_columns.get(col, 0) if col in categorical_columns else (0 if col not in numerical_columns else None),
-                    "missing_values": int(data[col].isna().sum()),
-                    "semantic_type": field_semantic_types.get(col, "UNKNOWN"),
-                    "english_name": english_column_mapping.get(col, col)  # 使用LLM生成的英文列名
-                }
-                for col in column_names
-            },
-            "categorical_details": {
-                col: {
-                    "unique_values": {str(k): int(v*data.shape[0]) for k, v in category_distribution.get(col, {}).items()},
-                    "total_categories": categorical_columns.get(col, 0)
-                }
-                for col in categorical_columns
-            },
-            "numerical_details": {
-                col: numerical_columns[col]
-                for col in numerical_columns
-            },
-            "english_column_mapping": english_column_mapping  # 添加整体的英文列名映射
+            "name": file_name,
+            "dataset_description": dataset_summary,
+            "total_rows": len(df),
+            "total_columns": len(df.columns),
+            "fields_info": {},
+            "categorical_details": {},
+            "numerical_details": {},
+            "datetime_details": {}  # 新增日期类型详情
         }
+        
+        # 填充fields_info，使用原始列名
+        for col in original_columns:
+            dtype = str(df[col].dtype)
+            num_unique = df[col].nunique()
+            missing = df[col].isna().sum()
+            
+            # 确定语义类型
+            semantic_type = "UNKNOWN"
+            if col in datetime_columns:
+                semantic_type = "DATETIME"
+            elif col.lower() in ["id", "customer_id", "user_id"] or "id" in col.lower():
+                semantic_type = "ID"
+            elif np.issubdtype(df[col].dtype, np.number):
+                semantic_type = "NUMERIC"
+            elif num_unique < len(df) * 0.5:  # 如果唯一值数量相对较少，视为类别型
+                semantic_type = "CATEGORY"
+            elif df[col].dtype == "object" or df[col].dtype == "string":
+                semantic_type = "TEXT"
+            
+            dataset_context["fields_info"][col] = {
+                "dtype": dtype,
+                "num_unique_values": int(num_unique),
+                "missing_values": int(missing),
+                "semantic_type": semantic_type
+            }
+        
+        # 填充categorical_details (排除日期列)，使用原始列名
+        for col, unique_count in categorical_columns.items():
+            if col not in datetime_columns:  # 排除已被识别为日期的列
+                # 获取这个列的每个值的计数
+                value_counts = df[col].value_counts().to_dict()
+                
+                # 如果类别太多，只保留前10个和后10个
+                if len(value_counts) > 20:
+                    top_values = dict(list(df[col].value_counts().head(10).items()))
+                    bottom_values = dict(list(df[col].value_counts().tail(10).items()))
+                    value_counts = {**top_values, **bottom_values}
+                
+                dataset_context["categorical_details"][col] = {
+                    "unique_values": value_counts,
+                    "total_categories": unique_count
+                }
+        
+        # 填充numerical_details，使用原始列名
+        for col, stats in numerical_columns.items():
+            dataset_context["numerical_details"][col] = {
+                "min": stats.get("min", float(df[col].min())),
+                "max": stats.get("max", float(df[col].max())),
+                "mean": stats.get("mean", float(df[col].mean())),
+                "std": stats.get("std", float(df[col].std())),
+                "quartiles": {
+                    "25%": stats.get("quartiles", {}).get("25%", float(df[col].quantile(0.25))),
+                    "50%": stats.get("quartiles", {}).get("50%", float(df[col].quantile(0.50))),
+                    "75%": stats.get("quartiles", {}).get("75%", float(df[col].quantile(0.75)))
+                }
+            }
+            
+        # 填充datetime_details，使用原始列名
+        for col in datetime_columns:
+            dataset_context["datetime_details"][col] = datetime_columns[col]
 
         return dataset_context
     
-    def _generate_column_names_and_summary_with_english_mapping(
+    def _try_parse_dates(self, df: pd.DataFrame) -> pd.DataFrame:
+        """尝试将日期类型的列转换为datetime，保留原始列名"""
+        # 常见的日期列名
+        date_col_patterns = ["date", "time", "year", "month", "day", "创建日期", "更新日期", "时间"]
+        
+        for col in df.columns:
+            # 如果列名包含日期相关关键词
+            if any(pattern in col.lower() for pattern in date_col_patterns):
+                try:
+                    # 尝试转换为datetime，保留原始列名
+                    df[col] = pd.to_datetime(df[col])
+                    print(f"列 {col} 已成功转换为日期类型")
+                except Exception as e:
+                    # 转换失败就保持原样
+                    print(f"列 {col} 无法转换为日期类型: {str(e)}")
+                    pass
+        
+        return df
+    
+    def _generate_column_names_and_summary(
             self,
             dataset_name: str,
             total_rows: int,
@@ -126,96 +214,68 @@ class DatasetContextGenerator:
             sample_data: List[Dict],
             data_types: Dict[str, str],
             categorical_columns: Dict[str, int],
-            numerical_columns: Dict[str, Dict[str, float]]
+            numerical_columns: Dict[str, Dict[str, float]],
+            datetime_columns: Dict[str, Dict[str, str]] = None
         ) -> Dict:
-        """**一次性调用 LLM 生成完整列名 + 数据集摘要 + 英文列名映射**"""
+        """**一次性调用 LLM 生成完整列名 + 数据集摘要**"""
+        datetime_part = ""
+        if datetime_columns:
+            # 使用自定义JSON编码器序列化datetime对象
+            datetime_json = json.dumps(datetime_columns, indent=2, ensure_ascii=False, cls=CustomJSONEncoder)
+            datetime_part = f"\n\n**日期列的统计信息**：\n{datetime_json}"
+            
+        # 使用自定义JSON编码器序列化所有数据
+        sample_json = json.dumps(sample_data, indent=2, ensure_ascii=False, cls=CustomJSONEncoder)
+        data_types_json = json.dumps(data_types, indent=2, ensure_ascii=False)
+        categorical_json = json.dumps(categorical_columns, indent=2, ensure_ascii=False)
+        numerical_json = json.dumps(numerical_columns, indent=2, ensure_ascii=False, cls=CustomJSONEncoder)
+            
         prompt = f"""
-        数据集名称：{dataset_name}
-        该数据集包含 {total_rows} 行，{total_columns} 列。
+        Dataset Name: {dataset_name}
+        This dataset contains {total_rows} rows and {total_columns} columns.
         
-        **原始列名**：
+        **Original Column Names**:
         {json.dumps(column_names, indent=2, ensure_ascii=False)}
 
-        **前 5 行数据样本**：
-        {json.dumps(sample_data, indent=2, ensure_ascii=False)}
+        **First 5 Rows Sample Data**:
+        {sample_json}
 
-        **各列的数据类型**：
-        {json.dumps(data_types, indent=2, ensure_ascii=False)}
+        **Data Types for Each Column**:
+        {data_types_json}
 
-        **类别列及类别数**：
-        {json.dumps(categorical_columns, indent=2, ensure_ascii=False)}
+        **Categorical Columns and Category Counts**:
+        {categorical_json}
 
-        **数值列的统计信息**：
-        {json.dumps(numerical_columns, indent=2, ensure_ascii=False)}
+        **Statistical Information for Numerical Columns**:
+        {numerical_json}{datetime_part}
 
-        **请完成以下任务**：
-        1️⃣ **为每一列生成完整列名**，如：
-        - "age" → "用户年龄（years）"
-        - "revenue" → "订单收入（USD）"
+        **Please complete the following tasks**:
+        1️⃣ **Generate full column names for each column**, for example:
+        - "age" → "User Age (years)"
+        - "revenue" → "Order Revenue (USD)"
+        
+        **Important: Keep the original column names as JSON keys, do not modify the column name format**
 
-        2️⃣ **生成数据集摘要**，需描述：
-        - 数据集的主要内容
-        - 重要的类别列及其类别数量
-        - 重要的数值列的取值范围
+        2️⃣ **Generate dataset summary**, which should describe:
+        - Main content of the dataset
+        - Important categorical columns and their category counts
+        - Value ranges of important numerical columns
+        - If there are date columns, describe the time span of the data
 
-        3️⃣ **为所有中文列名创建准确的英文映射**，这对于数据可视化非常重要。必须为每个列名生成对应的英文名称，确保映射合理且与数据内容相符。例如：
-        - "年龄" → "Age"
-        - "性别" → "Gender"
-        - "收入" → "Income"
-        - "区域" → "Region"
-        - "省份" → "Province"
-        - "市" → "City" 
-
-        **请直接返回 JSON 格式**：
+        **Please return directly in JSON format**:
         ```json
         {{
             "full_column_names": {{
-                "age": "用户年龄（years）",
-                "revenue": "订单收入（USD）"
+                "age": "User Age (years)",
+                "revenue": "Order Revenue (USD)"
             }},
-            "dataset_summary": "数据集包含某某信息...",
-            "english_column_mapping": {{
-                "年龄": "Age",
-                "性别": "Gender",
-                "区域": "Region",
-                "省份": "Province",
-                "市": "City"
-            }}
+            "dataset_summary": "This dataset contains information about..."
         }}
         ```
         """
 
         response = self._call_openai_api(prompt)
-        default = {
-            "full_column_names": {col: col for col in column_names}, 
-            "dataset_summary": "暂无摘要信息",
-            "english_column_mapping": {}
-        }
-        return self._parse_json(response, default=default)
-
-    def _generate_field_semantic_types(self, data: pd.DataFrame, categorical_columns: Dict, numerical_columns: Dict) -> Dict:
-        """为每个字段生成语义类型"""
-        semantic_types = {}
-        
-        for col in data.columns:
-            if col in categorical_columns:
-                # 特殊类型检测
-                if col.lower() in ['id', 'code', 'no', 'number', '编号', '代码', '序号'] or 'id' in col.lower():
-                    semantic_types[col] = "ID"
-                elif col.lower() in ['date', 'time', 'datetime', 'timestamp', '日期', '时间'] or '日期' in col.lower() or '时间' in col.lower():
-                    semantic_types[col] = "DATETIME"
-                else:
-                    semantic_types[col] = "CATEGORY"
-            elif col in numerical_columns:
-                # ID检测
-                if col.lower() in ['id', 'code', 'no', 'number', '编号', '代码', '序号'] or 'id' in col.lower():
-                    semantic_types[col] = "ID"
-                else:
-                    semantic_types[col] = "NUMERIC"
-            else:
-                semantic_types[col] = "UNKNOWN"
-                
-        return semantic_types
+        return self._parse_json(response, default={"full_column_names": {col: col for col in column_names}, "dataset_summary": "No summary information available"})
 
     def _call_openai_api(self, prompt: str) -> str:
         """调用 OpenAI API（兼容新版 API）"""
@@ -224,18 +284,18 @@ class DatasetContextGenerator:
             from openai import OpenAI
             client = OpenAI(
                 api_key=self.api_key,
-                base_url=self.base_url if self.base_url else "https://api.chsdw.top/v1"  # 添加 /v1
+                base_url=self.base_url if self.base_url else "https://svip.yi-zhan.top/v1"  # 添加 /v1
             )
             
             try:
                 response = client.chat.completions.create(
-                    model="gpt-4o-mini",
+                    model="gpt-4o",
                     messages=[
-                        {"role": "system", "content": "你是一个数据分析专家，负责生成数据集的描述性总结。"},
+                        {"role": "system", "content": "You are a data analysis expert responsible for generating descriptive summaries of datasets."},
                         {"role": "user", "content": prompt}
                     ],
                     temperature=0,
-                    max_tokens=8000
+                    max_tokens=1000
                 )
                 
                 # 处理响应
@@ -272,16 +332,36 @@ class DatasetContextGenerator:
             return default
 
     def _analyze_columns(self, data: pd.DataFrame):
-        """分析数据列类型、类别列统计、数值列统计"""
+        """分析数据列类型、类别列统计、数值列统计和日期列统计"""
         data_types = {}
         categorical_columns = {}
         category_distribution = {}
         numerical_columns = {}
+        datetime_columns = {}
 
+        # 使用原始列名
         for col in data.columns:
             dtype = str(data[col].dtype)
             data_types[col] = dtype  # 记录数据类型
-
+            
+            # 检查是否为日期类型
+            if pd.api.types.is_datetime64_any_dtype(data[col]) or self._is_date_column(data[col]):
+                try:
+                    date_series = pd.to_datetime(data[col])
+                    min_date = date_series.min()
+                    max_date = date_series.max()
+                    datetime_columns[col] = {
+                        "min_date": min_date.strftime("%Y-%m-%d") if not pd.isna(min_date) else None,
+                        "max_date": max_date.strftime("%Y-%m-%d") if not pd.isna(max_date) else None,
+                        "date_range_days": (max_date - min_date).days if not pd.isna(min_date) and not pd.isna(max_date) else None
+                    }
+                    continue  # 如果是日期类型，跳过后续的分析
+                except Exception as e:
+                    print(f"处理日期列 {col} 时出错: {str(e)}")
+                    # 如果转换失败，则当作普通列处理
+                    pass
+            
+            # 非日期类型的处理
             if self._is_categorical(data[col]):
                 unique_values_count = data[col].nunique()
                 categorical_columns[col] = unique_values_count
@@ -300,7 +380,7 @@ class DatasetContextGenerator:
                     }
                 }
         
-        return data_types, categorical_columns, category_distribution, numerical_columns
+        return data_types, categorical_columns, category_distribution, numerical_columns, datetime_columns
 
     def _is_categorical(self, series):
         """判断一个列是否为类别型"""
@@ -314,3 +394,32 @@ class DatasetContextGenerator:
             return unique_count < len(series) * 0.1 and unique_count < 20
         
         return False
+    
+    def _is_date_column(self, series):
+        """检查是否为日期列，尝试匹配常见的日期格式"""
+        if series.dtype != 'object':
+            return False
+            
+        # 取前10个非空值样本
+        samples = series.dropna().head(10)
+        if len(samples) == 0:
+            return False
+            
+        # 检查样本是否都匹配常见的日期格式
+        date_patterns = [
+            r'\d{4}-\d{1,2}-\d{1,2}',  # YYYY-MM-DD
+            r'\d{1,2}/\d{1,2}/\d{4}',   # MM/DD/YYYY
+            r'\d{1,2}-\d{1,2}-\d{4}',   # DD-MM-YYYY
+            r'\d{4}/\d{1,2}/\d{1,2}'    # YYYY/MM/DD
+        ]
+        
+        for sample in samples:
+            is_date = False
+            for pattern in date_patterns:
+                if re.fullmatch(pattern, str(sample)):
+                    is_date = True
+                    break
+            if not is_date:
+                return False
+                
+        return True

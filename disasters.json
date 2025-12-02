@@ -1,0 +1,433 @@
+{
+  "name": "Shopping Trends And Customer Behaviour Dataset.csv",
+  "dataset_description": {
+    "main_content": "This dataset provides insights into shopping trends and customer behavior, including demographic information, purchasing patterns, product preferences, and transaction details. It contains 3900 rows and 18 columns, capturing data on customer demographics, purchase details, and shopping habits.",
+    "important_categorical_columns": {
+      "Gender": {
+        "description": "Customer gender distribution",
+        "category_count": 2
+      },
+      "Item Purchased": {
+        "description": "Types of products purchased",
+        "category_count": 25
+      },
+      "Category": {
+        "description": "Broad product categories",
+        "category_count": 4
+      },
+      "Location": {
+        "description": "Geographical locations of customers",
+        "category_count": 50
+      },
+      "Color": {
+        "description": "Colors of purchased products",
+        "category_count": 25
+      },
+      "Season": {
+        "description": "Season of purchase",
+        "category_count": 4
+      },
+      "Subscription Status": {
+        "description": "Whether customers are subscribed to a membership",
+        "category_count": 2
+      },
+      "Shipping Type": {
+        "description": "Shipping methods used",
+        "category_count": 6
+      },
+      "Discount Applied": {
+        "description": "Whether a discount was applied",
+        "category_count": 2
+      },
+      "Promo Code Used": {
+        "description": "Whether a promo code was used",
+        "category_count": 2
+      },
+      "Payment Method": {
+        "description": "Payment methods used by customers",
+        "category_count": 6
+      },
+      "Frequency of Purchases": {
+        "description": "How often customers make purchases",
+        "category_count": 7
+      }
+    },
+    "important_numerical_columns": {
+      "Age": {
+        "description": "Age of customers",
+        "range": {
+          "min": 18,
+          "max": 70
+        },
+        "mean": 44.07,
+        "std_dev": 15.21
+      },
+      "Purchase Amount (USD)": {
+        "description": "Transaction amounts in USD",
+        "range": {
+          "min": 20,
+          "max": 100
+        },
+        "mean": 59.76,
+        "std_dev": 23.69
+      },
+      "Review Rating": {
+        "description": "Customer review ratings for products",
+        "range": {
+          "min": 2.5,
+          "max": 5.0
+        },
+        "mean": 3.75,
+        "std_dev": 0.72
+      },
+      "Previous Purchases": {
+        "description": "Number of previous purchases made by customers",
+        "range": {
+          "min": 1,
+          "max": 50
+        },
+        "mean": 25.35,
+        "std_dev": 14.45
+      }
+    },
+    "date_columns": "No date columns are present in this dataset."
+  },
+  "total_rows": 3900,
+  "total_columns": 18,
+  "fields_info": {
+    "Unnamed: 0": {
+      "dtype": "int64",
+      "num_unique_values": 3900,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "Customer ID": {
+      "dtype": "int64",
+      "num_unique_values": 3900,
+      "missing_values": 0,
+      "semantic_type": "ID"
+    },
+    "Age": {
+      "dtype": "int64",
+      "num_unique_values": 53,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "Gender": {
+      "dtype": "object",
+      "num_unique_values": 2,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "Item Purchased": {
+      "dtype": "object",
+      "num_unique_values": 25,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "Category": {
+      "dtype": "object",
+      "num_unique_values": 4,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "Purchase Amount (USD)": {
+      "dtype": "int64",
+      "num_unique_values": 81,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "Location": {
+      "dtype": "object",
+      "num_unique_values": 50,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "Color": {
+      "dtype": "object",
+      "num_unique_values": 25,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "Season": {
+      "dtype": "object",
+      "num_unique_values": 4,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "Review Rating": {
+      "dtype": "float64",
+      "num_unique_values": 26,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "Subscription Status": {
+      "dtype": "object",
+      "num_unique_values": 2,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "Shipping Type": {
+      "dtype": "object",
+      "num_unique_values": 6,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "Discount Applied": {
+      "dtype": "object",
+      "num_unique_values": 2,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "Promo Code Used": {
+      "dtype": "object",
+      "num_unique_values": 2,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "Previous Purchases": {
+      "dtype": "int64",
+      "num_unique_values": 50,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "Payment Method": {
+      "dtype": "object",
+      "num_unique_values": 6,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "Frequency of Purchases": {
+      "dtype": "object",
+      "num_unique_values": 7,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    }
+  },
+  "categorical_details": {
+    "Gender": {
+      "unique_values": {
+        "Male": 2652,
+        "Female": 1248
+      },
+      "total_categories": 2
+    },
+    "Item Purchased": {
+      "unique_values": {
+        "Blouse": 171,
+        "Jewelry": 171,
+        "Pants": 171,
+        "Shirt": 169,
+        "Dress": 166,
+        "Sweater": 164,
+        "Jacket": 163,
+        "Belt": 161,
+        "Sunglasses": 161,
+        "Coat": 161,
+        "Hat": 154,
+        "Handbag": 153,
+        "Hoodie": 151,
+        "Shoes": 150,
+        "T-shirt": 147,
+        "Sneakers": 145,
+        "Boots": 144,
+        "Backpack": 143,
+        "Gloves": 140,
+        "Jeans": 124
+      },
+      "total_categories": 25
+    },
+    "Category": {
+      "unique_values": {
+        "Clothing": 1737,
+        "Accessories": 1240,
+        "Footwear": 599,
+        "Outerwear": 324
+      },
+      "total_categories": 4
+    },
+    "Location": {
+      "unique_values": {
+        "Montana": 96,
+        "California": 95,
+        "Idaho": 93,
+        "Illinois": 92,
+        "Alabama": 89,
+        "Minnesota": 88,
+        "Nebraska": 87,
+        "New York": 87,
+        "Nevada": 87,
+        "Maryland": 86,
+        "Utah": 71,
+        "New Hampshire": 71,
+        "South Dakota": 70,
+        "Iowa": 69,
+        "Florida": 68,
+        "New Jersey": 67,
+        "Hawaii": 65,
+        "Arizona": 65,
+        "Kansas": 63,
+        "Rhode Island": 63
+      },
+      "total_categories": 50
+    },
+    "Color": {
+      "unique_values": {
+        "Olive": 177,
+        "Yellow": 174,
+        "Silver": 173,
+        "Teal": 172,
+        "Green": 169,
+        "Black": 167,
+        "Cyan": 166,
+        "Violet": 166,
+        "Gray": 159,
+        "Maroon": 158,
+        "Purple": 151,
+        "Peach": 149,
+        "Red": 148,
+        "Beige": 147,
+        "Indigo": 147,
+        "Lavender": 147,
+        "Turquoise": 145,
+        "White": 142,
+        "Brown": 141,
+        "Gold": 138
+      },
+      "total_categories": 25
+    },
+    "Season": {
+      "unique_values": {
+        "Spring": 999,
+        "Fall": 975,
+        "Winter": 971,
+        "Summer": 955
+      },
+      "total_categories": 4
+    },
+    "Subscription Status": {
+      "unique_values": {
+        "No": 2847,
+        "Yes": 1053
+      },
+      "total_categories": 2
+    },
+    "Shipping Type": {
+      "unique_values": {
+        "Free Shipping": 675,
+        "Standard": 654,
+        "Store Pickup": 650,
+        "Next Day Air": 648,
+        "Express": 646,
+        "2-Day Shipping": 627
+      },
+      "total_categories": 6
+    },
+    "Discount Applied": {
+      "unique_values": {
+        "No": 2223,
+        "Yes": 1677
+      },
+      "total_categories": 2
+    },
+    "Promo Code Used": {
+      "unique_values": {
+        "No": 2223,
+        "Yes": 1677
+      },
+      "total_categories": 2
+    },
+    "Payment Method": {
+      "unique_values": {
+        "PayPal": 677,
+        "Credit Card": 671,
+        "Cash": 670,
+        "Debit Card": 636,
+        "Venmo": 634,
+        "Bank Transfer": 612
+      },
+      "total_categories": 6
+    },
+    "Frequency of Purchases": {
+      "unique_values": {
+        "Every 3 Months": 584,
+        "Annually": 572,
+        "Quarterly": 563,
+        "Monthly": 553,
+        "Bi-Weekly": 547,
+        "Fortnightly": 542,
+        "Weekly": 539
+      },
+      "total_categories": 7
+    }
+  },
+  "numerical_details": {
+    "Unnamed: 0": {
+      "min": 0.0,
+      "max": 3899.0,
+      "mean": 1949.5,
+      "std": 1125.9773532358456,
+      "quartiles": {
+        "25%": 974.75,
+        "50%": 1949.5,
+        "75%": 2924.25
+      }
+    },
+    "Customer ID": {
+      "min": 1.0,
+      "max": 3900.0,
+      "mean": 1950.5,
+      "std": 1125.9773532358456,
+      "quartiles": {
+        "25%": 975.75,
+        "50%": 1950.5,
+        "75%": 2925.25
+      }
+    },
+    "Age": {
+      "min": 18.0,
+      "max": 70.0,
+      "mean": 44.06846153846154,
+      "std": 15.207589127162382,
+      "quartiles": {
+        "25%": 31.0,
+        "50%": 44.0,
+        "75%": 57.0
+      }
+    },
+    "Purchase Amount (USD)": {
+      "min": 20.0,
+      "max": 100.0,
+      "mean": 59.76435897435898,
+      "std": 23.685392250875307,
+      "quartiles": {
+        "25%": 39.0,
+        "50%": 60.0,
+        "75%": 81.0
+      }
+    },
+    "Review Rating": {
+      "min": 2.5,
+      "max": 5.0,
+      "mean": 3.7499487179487176,
+      "std": 0.7162228139312417,
+      "quartiles": {
+        "25%": 3.1,
+        "50%": 3.7,
+        "75%": 4.4
+      }
+    },
+    "Previous Purchases": {
+      "min": 1.0,
+      "max": 50.0,
+      "mean": 25.35153846153846,
+      "std": 14.447125170462309,
+      "quartiles": {
+        "25%": 13.0,
+        "50%": 25.0,
+        "75%": 38.0
+      }
+    }
+  },
+  "datetime_details": {}
+}

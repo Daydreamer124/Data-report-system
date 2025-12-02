@@ -1,0 +1,24 @@
+You are a professional data analyst, please generate a comprehensive summary for the following data analysis chapter using the group-level captions.
+
+User Query:
+{QUERY}
+
+Chapter Title:
+{CHAPTER_TITLE}
+
+Chart Groups and Their Captions:
+{group_captions}
+
+Based on the chart groups and their captions above, generate a coherent chapter summary. The summary should:
+
+1. Begin with a brief introduction to the chapter's topic and purpose
+2. Synthesize insights from all chart groups to form a cohesive narrative
+3. Emphasize the relationships and connections between different chart groups 
+4. Connect these integrated insights to the user's original query
+5. Identify the most significant patterns, trends, or relationships revealed by the chart groups
+6. Provide in-depth interpretation of these findings
+7. Conclude with a summary of the main findings and suggest possible recommendations or directions for further analysis
+
+Note: The group_captions structure contains pre-analyzed insights for each thematic group of charts. Use these comprehensive group-level captions to create a higher-level synthesis rather than analyzing individual charts.
+
+The summary should be a well-structured paragraph, within 50 words in length, with professional yet accessible language that effectively communicates the key insights from the data visualization groups. 

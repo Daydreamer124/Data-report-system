@@ -1,0 +1,58 @@
+{
+  "name": "stocks.csv",
+  "dataset_description": "This dataset contains information about stock prices for various companies over a period of time. It includes 560 records with data on stock symbols, transaction dates, and stock prices. The dataset features one important categorical column, 'symbol', which represents 5 different stock symbols. The 'price' column, a numerical field, ranges from a minimum of 5.97 USD to a maximum of 707.0 USD, with a mean price of approximately 100.73 USD. The price data is distributed with a standard deviation of 132.55 USD, and the quartiles are 24.25 USD (25%), 57.255 USD (50%), and 100.84 USD (75%). The 'date' column spans from January 1, 2000, to March 1, 2010, covering a total of 3712 days.",
+  "total_rows": 560,
+  "total_columns": 3,
+  "fields_info": {
+    "symbol": {
+      "dtype": "object",
+      "num_unique_values": 5,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "date": {
+      "dtype": "object",
+      "num_unique_values": 123,
+      "missing_values": 0,
+      "semantic_type": "DATETIME"
+    },
+    "price": {
+      "dtype": "float64",
+      "num_unique_values": 549,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    }
+  },
+  "categorical_details": {
+    "symbol": {
+      "unique_values": {
+        "MSFT": 123,
+        "AMZN": 123,
+        "IBM": 123,
+        "AAPL": 123,
+        "GOOG": 68
+      },
+      "total_categories": 5
+    }
+  },
+  "numerical_details": {
+    "price": {
+      "min": 5.97,
+      "max": 707.0,
+      "mean": 100.7342857142857,
+      "std": 132.55477114107094,
+      "quartiles": {
+        "25%": 24.25,
+        "50%": 57.255,
+        "75%": 100.84
+      }
+    }
+  },
+  "datetime_details": {
+    "date": {
+      "min_date": "2000-01-01",
+      "max_date": "2010-03-01",
+      "date_range_days": 3712
+    }
+  }
+}

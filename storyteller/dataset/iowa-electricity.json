@@ -1,0 +1,56 @@
+{
+  "name": "iowa-electricity.csv",
+  "dataset_description": "This dataset contains information about electricity generation in Iowa from various energy sources over a period from 2001 to 2017. It includes 51 records detailing the net electricity generation measured in megawatt-hours (MWh) for each year. The dataset categorizes the energy sources into three types, providing insights into the distribution and changes in energy production over time. The net generation values range from a minimum of 1437 MWh to a maximum of 42750 MWh, with a mean of approximately 16950 MWh. The dataset spans a time period of 5844 days, covering 16 years of data collection.",
+  "total_rows": 51,
+  "total_columns": 3,
+  "fields_info": {
+    "year": {
+      "dtype": "object",
+      "num_unique_values": 17,
+      "missing_values": 0,
+      "semantic_type": "DATETIME"
+    },
+    "source": {
+      "dtype": "object",
+      "num_unique_values": 3,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "net_generation": {
+      "dtype": "int64",
+      "num_unique_values": 51,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    }
+  },
+  "categorical_details": {
+    "source": {
+      "unique_values": {
+        "Fossil Fuels": 17,
+        "Nuclear Energy": 17,
+        "Renewables": 17
+      },
+      "total_categories": 3
+    }
+  },
+  "numerical_details": {
+    "net_generation": {
+      "min": 1437.0,
+      "max": 42750.0,
+      "mean": 16950.039215686276,
+      "std": 14895.20021075351,
+      "quartiles": {
+        "25%": 4528.5,
+        "50%": 8560.0,
+        "75%": 35061.5
+      }
+    }
+  },
+  "datetime_details": {
+    "year": {
+      "min_date": "2001-01-01",
+      "max_date": "2017-01-01",
+      "date_range_days": 5844
+    }
+  }
+}

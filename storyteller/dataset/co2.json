@@ -1,0 +1,58 @@
+{
+  "name": "co2-concentration.csv",
+  "dataset_description": "This dataset contains information about monthly atmospheric CO2 concentration measurements from March 1958 to April 2020. The dataset includes 741 rows and 3 columns. The 'Date' column represents the measurement date, spanning a time range of 62 years and 1 month (22,677 days). The 'CO2' column provides the raw atmospheric CO2 concentration values in parts per million (ppm), with a range from 313.21 ppm to 416.18 ppm, a mean of 355.31 ppm, and a standard deviation of 28.52 ppm. The 'adjusted_CO2' column contains adjusted CO2 concentration values, ranging from 314.44 ppm to 413.35 ppm, with a mean of 355.30 ppm and a standard deviation of 28.44 ppm. There are no categorical columns in this dataset.",
+  "total_rows": 741,
+  "total_columns": 3,
+  "fields_info": {
+    "Date": {
+      "dtype": "object",
+      "num_unique_values": 741,
+      "missing_values": 0,
+      "semantic_type": "DATETIME"
+    },
+    "CO2": {
+      "dtype": "float64",
+      "num_unique_values": 718,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "adjusted_CO2": {
+      "dtype": "float64",
+      "num_unique_values": 709,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    }
+  },
+  "categorical_details": {},
+  "numerical_details": {
+    "CO2": {
+      "min": 313.21,
+      "max": 416.18,
+      "mean": 355.3109311740891,
+      "std": 28.52004862059201,
+      "quartiles": {
+        "25%": 329.39,
+        "50%": 352.52,
+        "75%": 378.34
+      }
+    },
+    "adjusted_CO2": {
+      "min": 314.44,
+      "max": 413.35,
+      "mean": 355.3041565452092,
+      "std": 28.442895350913698,
+      "quartiles": {
+        "25%": 330.14,
+        "50%": 352.87,
+        "75%": 378.01
+      }
+    }
+  },
+  "datetime_details": {
+    "Date": {
+      "min_date": "1958-03-01",
+      "max_date": "2020-04-01",
+      "date_range_days": 22677
+    }
+  }
+}

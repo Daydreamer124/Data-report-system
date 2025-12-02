@@ -1,0 +1,109 @@
+{
+  "name": "seattle-weather.csv",
+  "dataset_description": "This dataset contains information about daily weather observations in Seattle from January 1, 2012, to December 31, 2015. It includes data on precipitation levels, maximum and minimum temperatures, wind speed, and weather conditions. The 'weather' column is categorical with 5 distinct categories, representing different weather conditions. The numerical columns provide insights into the range of weather variables: precipitation varies from 0.0 to 55.9 mm, maximum temperature ranges from -1.6 to 35.6 °C, minimum temperature spans from -7.1 to 18.3 °C, and wind speed ranges from 0.4 to 9.5 m/s. The dataset covers a time span of 1460 days.",
+  "total_rows": 1461,
+  "total_columns": 6,
+  "fields_info": {
+    "date": {
+      "dtype": "object",
+      "num_unique_values": 1461,
+      "missing_values": 0,
+      "semantic_type": "DATETIME"
+    },
+    "precipitation": {
+      "dtype": "float64",
+      "num_unique_values": 111,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "temp_max": {
+      "dtype": "float64",
+      "num_unique_values": 67,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "temp_min": {
+      "dtype": "float64",
+      "num_unique_values": 55,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "wind": {
+      "dtype": "float64",
+      "num_unique_values": 79,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "weather": {
+      "dtype": "object",
+      "num_unique_values": 5,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    }
+  },
+  "categorical_details": {
+    "weather": {
+      "unique_values": {
+        "rain": 641,
+        "sun": 640,
+        "fog": 101,
+        "drizzle": 53,
+        "snow": 26
+      },
+      "total_categories": 5
+    }
+  },
+  "numerical_details": {
+    "precipitation": {
+      "min": 0.0,
+      "max": 55.9,
+      "mean": 3.02943189596167,
+      "std": 6.680194322314738,
+      "quartiles": {
+        "25%": 0.0,
+        "50%": 0.0,
+        "75%": 2.8
+      }
+    },
+    "temp_max": {
+      "min": -1.6,
+      "max": 35.6,
+      "mean": 16.43908281998631,
+      "std": 7.349758097360177,
+      "quartiles": {
+        "25%": 10.6,
+        "50%": 15.6,
+        "75%": 22.2
+      }
+    },
+    "temp_min": {
+      "min": -7.1,
+      "max": 18.3,
+      "mean": 8.234770704996578,
+      "std": 5.023004179961266,
+      "quartiles": {
+        "25%": 4.4,
+        "50%": 8.3,
+        "75%": 12.2
+      }
+    },
+    "wind": {
+      "min": 0.4,
+      "max": 9.5,
+      "mean": 3.24113620807666,
+      "std": 1.4378250588746193,
+      "quartiles": {
+        "25%": 2.2,
+        "50%": 3.0,
+        "75%": 4.0
+      }
+    }
+  },
+  "datetime_details": {
+    "date": {
+      "min_date": "2012-01-01",
+      "max_date": "2015-12-31",
+      "date_range_days": 1460
+    }
+  }
+}

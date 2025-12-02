@@ -10,105 +10,70 @@ import requests
 def get_python_to_vegalite_prompt(python_code: str) -> str:
     """生成用于将Python可视化代码转换为Vega-Lite的提示"""
     
+    # 尝试读取data_context.json获取数据上下文
+    data_context_str = ""
+    try:
+        json_path = os.path.join("storyteller", "dataset", "data_context.json")
+        if os.path.exists(json_path):
+            with open(json_path, 'r', encoding='utf-8') as f:
+                data_context_dict = json.load(f)
+                
+                # 构建数据字段类型信息
+                data_context_str = f"Dataset description: {data_context_dict.get('dataset_description', '')}\n\nField information:\n"
+                
+                for field, info in data_context_dict.get('fields_info', {}).items():
+                    field_type = info.get('dtype', 'unknown')
+                    semantic_type = info.get('semantic_type', '')
+                    data_context_str += f"- {field}: type={field_type}, semantic_type={semantic_type}\n"
+                
+                print("✅ Successfully read data_context.json to provide field type information")
+    except Exception as e:
+        print(f"⚠️ Failed to read data_context.json: {str(e)}")
+        data_context_str = ""  # 失败时使用空字符串
+
     # 使用以/storyteller开头的路径
-    dataset_path = "/storyteller/dataset/shopping.csv"
+    dataset_path = "/storyteller/dataset/co2-concentration.csv"
 
-    prompt = f"""
-你是一个专精数据可视化的AI助手，擅长将Python可视化代码转换为Vega-Lite规范。
+    prompt = """
+You are an AI assistant specialized in data visualization, skilled at converting Python visualization code to Vega-Lite specifications.
 
-请分析以下Python可视化代码，并将其直接转换为等效的Vega-Lite JSON配置。
-Python可视化代码:
-```
+Please analyze the following Python visualization code and convert it directly to an equivalent Vega-Lite JSON configuration, combining with the dataset description and field information.
+
+# Code and Data Information to Convert
+Python visualization code:
 {python_code}
-```
-请仔细分析代码的数据处理、图表类型、映射、坐标轴、标题等设置，确保Vega-Lite配置能够完整再现Python代码的可视化效果。
 
-【格式要求】请严格遵循标准JSON格式：
-- 所有字符串必须使用双引号，不能使用单引号： "text" 而非 'text'
-- 数组或对象的最后一个元素后不能有逗号
-- 布尔值使用 true/false 而非 True/False
-- 确保所有括号、大括号正确配对并完整闭合
+Dataset description:
+{data_context_str}
 
-【数据引用处理】
-- 请使用 "data": {{"url": "{dataset_path}"}} 来引用数据
-- 也可以使用 "data": {{"values": [...] }} 来提供内联数据，当Python代码中明确创建了静态数据时
-- 不要创建假数据或示例数据点
-- 确保保留Python代码中的所有数据处理操作(如分组、聚合、筛选等)，将它们转换为Vega-Lite的适当编码方式
+# Conversion Requirements
+Please carefully analyze the code's data processing, chart type, mappings, axes, titles and other settings to ensure the Vega-Lite configuration can completely reproduce the visualization effects of the Python code.
 
-【关于可视化特性】
-- 确保正确转换图表类型，例如bar、line、point、area、boxplot、arc(饼图)等
+## 1. Format Requirements
+- All strings must use double quotes, not single quotes: "text" instead of 'text'
+- No comma after the last element in arrays or objects
+- Use true/false for boolean values instead of True/False
+- Ensure all brackets and braces are correctly paired and completely closed
 
-【转换步骤】
-1. 识别代码使用的可视化库（matplotlib、seaborn、altair、plotly等）
-2. 确定图表类型（柱状图、折线图、散点图、饼图、箱线图等）
-3. 分析数据处理逻辑（例如分组、聚合、筛选等）
-4. 提取关键配置：
-   - 保留字段名称、轴标签、图例设置等
-   - 保留所有聚合操作（如mean、count等）
-   - 保留编码通道映射（颜色、大小、形状等）
-5. 创建完整的Vega-Lite JSON规范
+## 2. Data Reference Handling
+- Please use "data": {{"url": "{dataset_path}"}} to reference data
+- You can also use "data": {{"values": [...] }} to provide inline data (when Python code explicitly creates static data)
+- Do not create fake data or example data points
+- Ensure all data processing operations from Python code are retained (such as grouping, aggregation, filtering, etc.)
 
-【重要：编码处理语法指南】
-在Vega-Lite中，数据转换和聚合主要通过两种方式实现：
-1. 使用encoding对象中的各种属性，适合简单操作
-2. 使用transform数组，适合复杂操作
+## 3. Conversion Steps
+1. Identify the visualization library used in the code (matplotlib, seaborn, altair, plotly, etc.)
+2. Determine the chart type (bar chart, line chart, scatter plot, pie chart, box plot, etc.)
+3. Analyze data processing logic (such as grouping, aggregation, filtering, etc.)
+4. Extract key configurations (axis labels, legend settings, aggregation operations, color mappings, etc.)
+5. Create complete Vega-Lite JSON specification
 
-【特别关注：分箱(bin)操作处理】
-当处理类似pandas.cut()的自定义分箱操作时，有两种主要转换方法：
+# Chart Type Processing Guidelines
 
-1. 【简单均匀分箱】应该在encoding中的字段定义里使用bin属性:
-```
-"encoding": {{
-  "x": {{
-    "field": "Age",
-    "bin": true,  // 或定义bin参数："maxbins": 10
-    "type": "quantitative"
-  }}
-}}
-```
-
-2. 【自定义不均匀分箱】(如pandas.cut或自定义bins)应该使用calculate转换:
-```
-"transform": [
-  {{
-    "calculate": "datum.Age >= 18 && datum.Age < 30 ? '18-30' : datum.Age >= 30 && datum.Age < 45 ? '31-45' : datum.Age >= 45 && datum.Age < 60 ? '46-60' : '60+'",
-    "as": "Age_Group"
-  }}
-],
-"encoding": {{
-  "x": {{
-    "field": "Age_Group",
-    "type": "nominal"
-  }}
-}}
-```
-
-3. 【分箱+自定义标签】对于需要自定义bin边界和标签的情况:
-```
-"transform": [
-  {{
-    "bin": {{
-      "field": "Age",
-      "as": "age_bins",
-      "extent": [18, 70],  // 数据范围
-      "steps": [18, 30, 45, 60, 70]  // 自定义分箱边界
-    }}
-  }},
-  {{
-    "calculate": "datum.age_bins_end === 30 ? '18-30' : datum.age_bins_end === 45 ? '31-45' : datum.age_bins_end === 60 ? '46-60' : '60+'", 
-    "as": "Age_Group"
-  }}
-],
-"encoding": {{
-  "x": {{
-    "field": "Age_Group",
-    "type": "nominal"
-  }}
-}}
-```
-
-【聚合操作】应该放在encoding里对应的编码通道中：
-```
+## A. General Encoding Guidelines
+In Vega-Lite, data transformation and aggregation are mainly implemented through two methods:
+1. Set aggregation properties in the encoding object (suitable for simple operations)
+```json
 "encoding": {{
   "y": {{
     "field": "value",
@@ -117,30 +82,178 @@ Python可视化代码:
 }}
 ```
 
-【分组和染色】使用color或column等通道：
-```
+## B. Binning Operations
+1. Simple uniform binning:
+```json
 "encoding": {{
-  "x": {{"field": "category"}},
-  "y": {{"field": "value"}},
-  "color": {{"field": "group"}}
+  "x": {{
+    "field": "Age",
+    "bin": true,
+    "type": "quantitative"
+  }}
 }}
 ```
 
-请严格按以下模板格式返回Vega-Lite配置。确保JSON格式完全有效，不要添加任何额外说明，只返回JSON对象：
+2. Custom non-uniform binning:
+```json
+"transform": [
+  {{
+    "calculate": "datum.Age >= 18 && datum.Age < 30 ? '18-30' : datum.Age >= 30 ? '30+' : 'Other'",
+    "as": "Age_Group"
+  }}
+],
+"encoding": {{
+  "x": {{
+    "field": "Age_Group",
+    "type": "nominal"
+  }}
+}}
+```
+
+3. Custom binning boundaries:
+```json
+"transform": [
+  {{
+    "bin": {{
+      "field": "Age",
+      "as": "age_bins",
+      "extent": [18, 70],
+      "steps": [18, 30, 45, 60, 70]
+    }}
+  }}
+]
+```
+
+## C. Heatmap Processing
+Heatmaps require special attention to the following points:
+
+1. Basic structure:
+```json
+"mark": "rect",
+"encoding": {{
+  "x": {{ "field": "Category", "type": "nominal" }},
+  "y": {{ "field": "Group", "type": "nominal" }},
+  "color": {{ "field": "Value", "type": "quantitative" }}
+}}
+```
+
+2. Display numeric labels (must use layers):
+```json
+"layer": [
+  {{
+    "mark": "rect",
+    "encoding": {{ 
+      "x": {{ "field": "Category", "type": "nominal" }},
+      "y": {{ "field": "Group", "type": "nominal" }},
+      "color": {{ "field": "Value", "type": "quantitative" }}
+    }}
+  }},
+  {{
+    "mark": {{ "type": "text", "fontSize": 12 }},
+    "encoding": {{
+      "x": {{ "field": "Category", "type": "nominal" }},
+      "y": {{ "field": "Group", "type": "nominal" }},
+      "text": {{ "field": "Value", "type": "quantitative" }},
+      "color": {{
+        "condition": {{ "test": "datum.Value < 10", "value": "black" }},
+        "value": "white"
+      }}
+    }}
+  }}
+]
+```
+
+3. Color schemes (must use valid color scheme names):
+```json
+"color": {{
+  "field": "Value",
+  "type": "quantitative",
+  "scale": {{
+    "scheme": "blues"  // Refer to valid values in section E "Color Scheme Guidelines"
+  }}
+}}
+```
+
+4. Data aggregation:
+```json
+"transform": [
+  {{
+    "aggregate": [{{ "op": "count", "as": "Count" }}],
+    "groupby": ["Category", "Group"]
+  }}
+]
+```
+
+## D. Other Common Chart Type Tips
+- Bar chart: "mark": "bar"
+- Line chart: "mark": "line"
+- Scatter plot: "mark": "point"
+- Box plot: "mark": "boxplot"
+- Area chart: "mark": "area"
+- Pie chart: "mark": "arc" + "theta" encoding
+
+## E. Color Scheme Guidelines
+All chart types need to pay attention to using correct color scheme names. Vega-Lite only supports the following color scheme names:
+
+1. Categorical data color schemes (for nominal/ordinal data):
+```json
+"color": {{
+  "field": "Category",
+  "type": "nominal",
+  "scale": {{
+    "scheme": "category10"  // Color scheme suitable for categorical data
+  }}
+}}
+```
+Valid categorical color schemes include:
+- `"category10"`, `"category20"`, `"category20b"`, `"category20c"` (default categorical colors)
+- `"accent"`, `"dark2"`, `"paired"`, `"pastel1"`, `"pastel2"`, `"set1"`, `"set2"`, `"set3"`, `"tableau10"`, `"tableau20"`
+- Note: Do not use `"pastel"` (invalid), should use `"pastel1"` or `"pastel2"`
+
+2. Continuous data color schemes (for quantitative data):
+```json
+"color": {{
+  "field": "Value",
+  "type": "quantitative",
+  "scale": {{
+    "scheme": "blues"  // Color scheme suitable for continuous data
+  }}
+}}
+```
+Valid continuous color schemes include:
+- Single color gradients: `"blues"`, `"greens"`, `"greys"`, `"oranges"`, `"purples"`, `"reds"`
+- Multi-color gradients: `"viridis"`, `"inferno"`, `"magma"`, `"plasma"`, `"cividis"`, `"turbo"`
+- Bipolar gradients: `"blueorange"`, `"brownbluegreen"`, `"purplegreen"`, 
+"pinkyellowgreen", "redblue", "redgrey"
+
+3. Custom color arrays:
+```json
+"color": {{
+  "field": "Category",
+  "type": "nominal",
+  "scale": {{
+    "range": ["#675193", "#ca8861", "#f2e029", "#a1dbb2"]  // Custom colors
+  }}
+}}
+```
+
+# Output Format
+Please strictly follow the template format below to return the Vega-Lite configuration. Ensure the JSON format is completely valid, do not add any additional explanations, only return the JSON object:
 
 {{
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "title": "图表标题",
-  "description": "图表描述",
+  "title": "Chart title",
+  "description": "Chart description",
   "data": {{"url": "{dataset_path}"}},
-  "mark": "图表类型", 
+  "mark": "Chart type", 
   "encoding": {{
-    // 编码映射，包含数据转换操作
+    "/* Encoding mappings, including data transformation operations */"
   }}
 }}
 
-最终只返回一个有效的JSON对象，不要使用Markdown格式，不要添加任何解释文本。
-"""
+!! Important Note: Before outputting this configuration, please check once more if there are any errors in the configuration. If there are errors, please correct them before outputting.
+Finally, only return a valid JSON object, do not use Markdown format, do not add any explanatory text.
+""".format(python_code=python_code, data_context_str=data_context_str, dataset_path=dataset_path)
     return prompt
 
 def call_openai(prompt: str, **kwargs) -> str:
@@ -241,6 +354,7 @@ def convert_python_to_vegalite(python_code: str, llm_kwargs: Dict[str, Any] = No
         Vega-Lite配置对象或None（如果转换失败）
     """
     try:
+        
         # 准备提示
         prompt = get_python_to_vegalite_prompt(python_code)
         
@@ -265,6 +379,8 @@ def convert_python_to_vegalite(python_code: str, llm_kwargs: Dict[str, Any] = No
         # 提取JSON内容
         json_content = extract_json_from_response(response)
         if json_content:
+            # 验证并修复配色方案
+            json_content = validate_and_fix_color_schemes(json_content)
             return json_content
             
         
@@ -423,6 +539,91 @@ def safe_parse_json(json_str: str) -> Dict[str, Any]:
             except Exception as final_e:
                 print(f"❌ JSON解析最终失败: {str(final_e)}")
                 raise  # 如果所有方法都失败，抛出异常
+
+def validate_and_fix_color_schemes(config: Dict[str, Any]) -> Dict[str, Any]:
+    """验证并修复Vega-Lite配置中的配色方案名称
+    
+    参数：
+        config: Vega-Lite配置对象
+        
+    返回：
+        修复后的配置对象
+    """
+    # 有效的分类配色方案列表
+    categorical_schemes = [
+        "category10", "category20", "category20b", "category20c", 
+        "accent", "dark2", "paired", "pastel1", "pastel2", 
+        "set1", "set2", "set3", "tableau10", "tableau20"
+    ]
+    
+    # 有效的连续配色方案列表
+    sequential_schemes = [
+        # 单色渐变
+        "blues", "greens", "greys", "oranges", "purples", "reds",
+        # 多色渐变
+        "viridis", "inferno", "magma", "plasma", "cividis", "turbo",
+        # 双极渐变
+        "blueorange", "brownbluegreen", "purplegreen", 
+        "pinkyellowgreen", "redblue", "redgrey"
+    ]
+    
+    # 常见的错误配色方案映射到正确的配色方案
+    correction_map = {
+        "pastel": "pastel1",
+        "ylgnbu": "blues",
+        "ylgn": "greens",
+        "rdbu": "redblue",
+        "rdgy": "redgrey",
+        "rdpu": "purples",
+        "rdyl": "redyellow",
+        "heat": "inferno",
+        "spectral": "viridis",
+        "rainbow": "turbo",
+        "blue": "blues",
+        "green": "greens",
+        "grey": "greys",
+        "gray": "greys",
+        "orange": "oranges",
+        "purple": "purples",
+        "red": "reds",
+        "cat10": "category10",
+        "cat20": "category20",
+        "pastel1": "pastel1",  # 已经正确，保持不变
+        "pastel2": "pastel2"   # 已经正确，保持不变
+    }
+    
+    # 递归检查所有键值对
+    def check_color_scheme(obj):
+        if isinstance(obj, dict):
+            # 检测是否为配色方案定义
+            if "scale" in obj and isinstance(obj["scale"], dict) and "scheme" in obj["scale"]:
+                scheme = obj["scale"]["scheme"]
+                if isinstance(scheme, str):
+                    # 检查是否需要修正
+                    scheme_lower = scheme.lower()
+                    if scheme_lower in correction_map:
+                        corrected = correction_map[scheme_lower]
+                        print(f"⚠️ 修正配色方案: {scheme} -> {corrected}")
+                        obj["scale"]["scheme"] = corrected
+                    elif scheme_lower not in categorical_schemes and scheme_lower not in sequential_schemes:
+                        # 如果不在有效列表中，使用fallback
+                        print(f"⚠️ 未知配色方案 {scheme}，使用 'category10' 替代")
+                        obj["scale"]["scheme"] = "category10"
+            
+            # 递归检查所有子对象
+            for key, value in obj.items():
+                obj[key] = check_color_scheme(value)
+        
+        elif isinstance(obj, list):
+            # 递归检查所有列表项
+            for i, item in enumerate(obj):
+                obj[i] = check_color_scheme(item)
+        
+        return obj
+    
+    # 开始验证和修复
+    print(f"🔍 检查和修复配色方案...")
+    return check_color_scheme(config)
 
 def clean_json_content(json_str: str) -> str:
     """清理JSON内容，移除注释和其他非JSON元素"""

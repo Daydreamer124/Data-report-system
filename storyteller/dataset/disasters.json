@@ -1,0 +1,64 @@
+{
+  "name": "disasters.csv",
+  "dataset_description": "This dataset contains information about the number of deaths caused by various types of natural disasters over time. It includes 803 rows and 3 columns, with data categorized by disaster type ('Entity'), year ('Year'), and the number of deaths ('Deaths'). The 'Entity' column has 11 unique categories representing different types of disasters. The 'Deaths' column ranges from a minimum of 1 death to a maximum of 3,706,227 deaths, with a mean of 81,213 deaths and a standard deviation of 373,705 deaths. The interquartile range (IQR) for deaths is between 269.5 (25th percentile) and 10,362.5 (75th percentile). The 'Year' column contains only one unique date, '1970-01-01', indicating that all data points are associated with this specific year, and the dataset does not span multiple years.",
+  "total_rows": 803,
+  "total_columns": 3,
+  "fields_info": {
+    "Entity": {
+      "dtype": "object",
+      "num_unique_values": 11,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "Year": {
+      "dtype": "object",
+      "num_unique_values": 1,
+      "missing_values": 0,
+      "semantic_type": "DATETIME"
+    },
+    "Deaths": {
+      "dtype": "int64",
+      "num_unique_values": 680,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    }
+  },
+  "categorical_details": {
+    "Entity": {
+      "unique_values": {
+        "All natural disasters": 117,
+        "Earthquake": 111,
+        "Extreme weather": 111,
+        "Flood": 89,
+        "Landslide": 79,
+        "Epidemic": 69,
+        "Extreme temperature": 55,
+        "Volcanic activity": 53,
+        "Wildfire": 48,
+        "Drought": 39,
+        "Mass movement (dry)": 32
+      },
+      "total_categories": 11
+    }
+  },
+  "numerical_details": {
+    "Deaths": {
+      "min": 1.0,
+      "max": 3706227.0,
+      "mean": 81213.32503113325,
+      "std": 373705.4243788378,
+      "quartiles": {
+        "25%": 269.5,
+        "50%": 1893.0,
+        "75%": 10362.5
+      }
+    }
+  },
+  "datetime_details": {
+    "Year": {
+      "min_date": "1970-01-01",
+      "max_date": "1970-01-01",
+      "date_range_days": 0
+    }
+  }
+}

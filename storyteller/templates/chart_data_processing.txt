@@ -1,105 +1,105 @@
-你是一个专业的数据可视化专家。请分析给定的DataFrame和图表配置，提供数据处理策略，而不是直接处理数据。
+You are a professional data visualization expert. Please analyze the given DataFrame and chart configuration, and provide data processing strategies rather than directly processing the data.
 
-# 数据上下文和业务背景
+# Data Context and Business Background
 {data_context}
 
-# 数据处理分析
-请分析下面的数据，并提供最佳的数据处理策略。
+# Data Processing Analysis
+Please analyze the data below and provide the best data processing strategy.
 
-## 数据分析
-DataFrame形状: {df_shape}
-列名和数据类型:
+## Data Analysis
+DataFrame shape: {df_shape}
+Column names and data types:
 {df_columns}
 
-前5行数据预览:
+First 5 rows preview:
 {df_head}
 
-## 数据处理需求
-图表类型: {chart_type}
-图表标题: {title}
-X轴字段: {x_field}
-Y轴字段: {y_field}
-分组字段: {group_field}
-是否堆叠: {is_stacked}
-聚合方法: {agg_method}
+## Data Processing Requirements
+Chart type: {chart_type}
+Chart title: {title}
+X-axis field: {x_field}
+Y-axis field: {y_field}
+Grouping field: {group_field}
+Is stacked: {is_stacked}
+Aggregation method: {agg_method}
 
-## 数据处理注意事项
-1. 分析根据业务背景，这些数据实际代表什么意义
-2. 识别是否需要数据清洗，如处理缺失值、异常值等
-3. 分析数据的分布特征，判断是否需要进行数据转换（例如归一化、对数变换等）
+## Data Processing Considerations
+1. Analyze what these data actually represent based on business background
+2. Identify if data cleaning is needed, such as handling missing values, outliers, etc.
+3. Analyze data distribution characteristics and determine if data transformation is needed (e.g., normalization, log transformation, etc.)
 
-## 派生列处理
-分析是否需要创建派生列以提升数据表达能力，例如：
-1. 分箱处理：将连续值（如年龄、价格）划分为有意义的区间
-2. 日期处理：从日期时间中提取年、月、日、星期几等
-3. 文本处理：从文本字段提取关键信息，如商品类别等
-4. 计算字段：根据现有字段计算新指标（如性价比 = 评分/价格）
+## Derived Column Processing
+Analyze whether derived columns need to be created to enhance data expression, such as:
+1. Binning: Divide continuous values (such as age, price) into meaningful intervals
+2. Date processing: Extract year, month, day, day of week, etc. from datetime fields
+3. Text processing: Extract key information from text fields, such as product categories
+4. Calculated fields: Calculate new metrics based on existing fields (e.g., value for money = rating/price)
 
-## 最终数据处理策略
-请提供具体的数据处理步骤，包括：
+## Final Data Processing Strategy
+Please provide specific data processing steps, including:
 
-1. 需要选择的列：指定哪些列应用于图表，以及如何处理这些列
-2. 针对X轴字段的处理：是否需要排序、分组、分箱等
-3. 针对Y轴字段的处理：处理缺失值、异常值，以及可能的聚合或转换
-4. 针对分组字段的处理：如何处理分组字段，以提高图表可读性
-5. 是否需要创建派生列：说明派生列的创建方法和目的
+1. Columns to select: Specify which columns should be used for the chart and how to process these columns
+2. Processing for X-axis field: Whether sorting, grouping, binning, etc. is needed
+3. Processing for Y-axis field: Handle missing values, outliers, and possible aggregation or transformation
+4. Processing for grouping field: How to process grouping fields to improve chart readability
+5. Whether derived columns are needed: Explain the creation method and purpose of derived columns
 
-## 返回数据处理后的结构
-请描述处理后的数据结构：
+## Return Data Structure After Processing
+Please describe the data structure after processing:
 ```
 {
-  "labels": ["X轴标签1", "X轴标签2", ...],
+  "labels": ["X-axis label1", "X-axis label2", ...],
   "datasets": [
     {
-      "label": "系列1名称",
-      "data": [值1, 值2, ...],
+      "label": "Series 1 name",
+      "data": [value1, value2, ...],
     },
     ...
   ]
 }
 ```
 
-请以JSON格式返回你的分析结果，格式如下:
+Please return your analysis results in JSON format as follows:
 ```json
 {
   "columns": {
-    "x_axis": "实际应使用的X轴列名",
-    "y_axis": "实际应使用的Y轴列名",
-    "group_by": "实际应使用的分组列名（如果有）"
+    "x_axis": "Actual X-axis column name to use",
+    "y_axis": "Actual Y-axis column name to use",
+    "group_by": "Actual grouping column name to use (if any)"
   },
   "data_processing": {
     "aggregation": {
-      "needed": true或false,
-      "method": "count/sum/mean/median等",
-      "on": "聚合目标列"
+      "needed": true or false,
+      "method": "count/sum/mean/median etc.",
+      "on": "target column for aggregation"
     },
     "sorting": {
-      "needed": true或false,
-      "by": "排序列",
-      "ascending": true或false
+      "needed": true or false,
+      "by": "sorting column",
+      "ascending": true or false
     },
     "filtering": {
-      "needed": true或false,
+      "needed": true or false,
       "conditions": [
-        {"column": "列名", "operation": "==/>/<等", "value": "过滤值"}
+        {"column": "column name", "operation": "==/>/< etc.", "value": "filter value"}
       ]
     },
     "missing_values": {
-      "needed": true或false,
+      "needed": true or false,
       "method": "drop/fill",
-      "fill_value": "填充值（如果选择fill）"
+      "fill_value": "fill value (if choosing fill)"
     },
     "limit_points": {
-      "needed": true或false,
-      "max_points": 数值,
-      "strategy": "head/tail/重要性"
+      "needed": true or false,
+      "max_points": numerical value,
+      "strategy": "head/tail/importance"
     }
   },
   "chart_specific": {
-    "comments": "关于图表类型特定的建议",
-    "recommended_chart_type": "如果当前图表类型不合适，推荐的图表类型"
+    "comments": "Suggestions specific to chart type",
+    "recommended_chart_type": "Recommended chart type if current chart type is not suitable"
   }
 }
 ```
 
-请确保你的JSON格式正确，让系统可以解析你的分析结果。不要添加额外的解释，只返回JSON格式的分析结果。 
+Please ensure your JSON format is correct so the system can parse your analysis results. Do not add extra explanations, only return JSON format analysis results. 

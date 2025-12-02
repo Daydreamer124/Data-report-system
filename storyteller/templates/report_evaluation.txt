@@ -6,7 +6,7 @@ Dataset Context:
 User Query:
 {QUERY}
 
-Report HTML Content:
+Report Markdown Content:
 {REPORT}
 
 Report Image:
@@ -14,34 +14,38 @@ Report Image:
 
 Please evaluate the data visualization report across the following four dimensions (1-10 points) and provide detailed rationales:
 
-1. Accuracy and Completeness of Data Representation - 40%
-- Chart type suitability: Is the selected chart type appropriate for expressing this type of data and its relationships?
-- Scale accuracy: Do visual elements such as axes and areas accurately reflect the data magnitude relationships?
-- Data completeness: Are key data points completely presented without obvious omissions?
-- Data context completeness: Are necessary titles, coordinate axes, legends, and other information provided?
+1. Informativeness - 30%
+- Content depth: Does the report provide in-depth data analysis and insights?
+- Information value: Does the provided information have substantial value and practicality?
+- Data coverage: Does it comprehensively cover key data points relevant to the query?
+- Insight quality: Does it provide deeper insights beyond surface-level data?
 
-2. Effectiveness and Clarity of Information Communication - 30%
-- Core information highlighting: Are key insights highlighted through visual elements?
-- Cognitive friendliness: Is information density appropriate and are annotations clear?
-- Content coherence: Do visualizations and text form a coherent narrative?
+2. Clarity and Coherence - 30%
+- Logical organization: Does the content have a clear logical structure and organization?
+- Ease of understanding: Is the report easy to understand without overly complex expressions?
+- Section connectivity: Are different parts of the report well-connected with good transitions?
+- Expression accuracy: Is the language expression accurate and clear?
 
-3. Aesthetic Quality and Professionalism of Design - 20%
-- Overall visual harmony: Are colors coordinated and layout balanced?
-- Refined details: Are spacing, alignment, and other details professional?
-- Simplicity and restraint: Are unnecessary decorations avoided?
+3. Visualization Quality - 20%
+- Chart suitability: Are the selected chart types appropriate for expressing the data relationships?
+- Visual aesthetics: Are the chart designs visually appealing, professional, with coordinated colors?
+- Readability: Are the charts easy to read and understand?
+- Information enhancement: Do the visualizations effectively enhance understanding of the data?
 
-4. Narrative Structure Completeness - 10%
-- Does it include a complete structure with summary, body, conclusion, etc.?
-- Are all sections logically connected?
-- Does the content closely address the user query?
+4. Narrative Quality - 20%
+- Engagement: Does the narrative capture and maintain reader interest?
+- Storytelling: Does it build a coherent data story rather than simply listing facts?
+- Insight depth: Does the narrative provide profound insights?
+- Goal alignment: Does the narrative closely address the user's query objectives?
 
-Please ONLY return your evaluation in the following JSON format without any additional explanation or prefix:
+Please ONLY return your evaluation in the following JSON format without any additional explanation or prefix,
+Please note: use double curly braces {{ and }} to escape and output literal single braces { and } in your response.:
 
 {{
-    "representation": {{"score": number, "rationale": "detailed evaluation reason"}},
-    "presentation": {{"score": number, "rationale": "detailed evaluation reason"}},
-    "aesthetics": {{"score": number, "rationale": "detailed evaluation reason"}},
-    "narrative": {{"score": number, "rationale": "detailed evaluation reason"}}
+    "informativeness": {{"score": number, "rationale": "brief evaluation reason"}},
+    "clarity_coherence": {{"score": number, "rationale": "brief evaluation reason"}},
+    "visualization_quality": {{"score": number, "rationale": "brief evaluation reason"}},
+    "narrative_quality": {{"score": number, "rationale": "brief evaluation reason"}}
 }}
 
 

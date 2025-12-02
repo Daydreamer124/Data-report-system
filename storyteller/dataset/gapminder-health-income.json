@@ -1,0 +1,112 @@
+{
+    "name": "gapminder-health-income.csv",
+    "dataset_description": "This dataset contains information about the average income, life expectancy, and population of 187 countries, categorized by geographical regions. The important categorical column is 'region', which has 6 distinct categories. The 'income' column ranges from 599 to 132,877 USD, with a mean of 17,232 USD. The 'health' column, representing life expectancy, ranges from 48.5 to 84.1 years, with a mean of 71.67 years. The 'population' column ranges from 52,993 to 1,376,048,943, with a mean population of approximately 39 million. There are no date columns in this dataset.",
+    "total_rows": 187,
+    "total_columns": 5,
+    "fields_info": {
+      "country": {
+        "dtype": "object",
+        "num_unique_values": 187,
+        "missing_values": 0,
+        "semantic_type": "TEXT"
+      },
+      "income": {
+        "dtype": "int64",
+        "num_unique_values": 187,
+        "missing_values": 0,
+        "semantic_type": "NUMERIC"
+      },
+      "health": {
+        "dtype": "float64",
+        "num_unique_values": 140,
+        "missing_values": 0,
+        "semantic_type": "NUMERIC"
+      },
+      "population": {
+        "dtype": "int64",
+        "num_unique_values": 187,
+        "missing_values": 0,
+        "semantic_type": "NUMERIC"
+      },
+      "region": {
+        "dtype": "object",
+        "num_unique_values": 6,
+        "missing_values": 0,
+        "semantic_type": "CATEGORY"
+      }
+    },
+    "categorical_details": {
+      "country": {
+        "unique_values": {
+          "Afghanistan": 1,
+          "Papua New Guinea": 1,
+          "New Zealand": 1,
+          "Nicaragua": 1,
+          "Niger": 1,
+          "Nigeria": 1,
+          "North Korea": 1,
+          "Norway": 1,
+          "Oman": 1,
+          "Pakistan": 1,
+          "France": 1,
+          "Gabon": 1,
+          "Gambia": 1,
+          "Georgia": 1,
+          "Germany": 1,
+          "Ghana": 1,
+          "Greece": 1,
+          "Grenada": 1,
+          "Guatemala": 1,
+          "Zimbabwe": 1
+        },
+        "total_categories": 187
+      },
+      "region": {
+        "unique_values": {
+          "europe_central_asia": 50,
+          "sub_saharan_africa": 48,
+          "america": 34,
+          "east_asia_pacific": 27,
+          "middle_east_north_africa": 20,
+          "south_asia": 8
+        },
+        "total_categories": 6
+      }
+    },
+    "numerical_details": {
+      "income": {
+        "min": 599.0,
+        "max": 132877.0,
+        "mean": 17232.24064171123,
+        "std": 19310.632882242568,
+        "quartiles": {
+          "25%": 3585.5,
+          "50%": 10996.0,
+          "75%": 23834.0
+        }
+      },
+      "health": {
+        "min": 48.5,
+        "max": 84.1,
+        "mean": 71.67326203208557,
+        "std": 7.748959108094907,
+        "quartiles": {
+          "25%": 65.5,
+          "50%": 73.13,
+          "75%": 77.7
+        }
+      },
+      "population": {
+        "min": 52993.0,
+        "max": 1376048943.0,
+        "mean": 39088869.51871658,
+        "std": 143289835.8663455,
+        "quartiles": {
+          "25%": 2248920.0,
+          "50%": 8544586.0,
+          "75%": 27693878.0
+        }
+      }
+    },
+    "datetime_details": {}
+  }

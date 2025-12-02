@@ -198,32 +198,19 @@ def parse_markdown_direct(md_path):
                 j += 1
                 i += 1  # 跳过已处理的行
             
-            # 检查是否是无价值图表的caption
-            is_no_value_caption = (
-                "will not be included" in caption_text.lower() or
-                "lacks clear insight" in caption_text.lower() or
-                "no insight value" in caption_text.lower() or
-                "不包含在最终报告中" in caption_text.lower()
-            )
-            
-            if is_no_value_caption:
-                print(f"⚠️ 检测到无价值图表caption，将跳过后续图表: {caption_text[:50]}...")
-                # 设置特殊标记，用于跳过接下来的图表
-                current_caption = "SKIP_NO_VALUE"
-            else:
-                # 检查是否是图表组开始
-                k = j
-                while k < len(lines) and not lines[k].strip():
-                    k += 1  # 跳过空行
-                    
-                is_next_group_start = k < len(lines) and "<!-- chart-group-start -->" in lines[k].strip()
+            # 检查是否是图表组开始
+            k = j
+            while k < len(lines) and not lines[k].strip():
+                k += 1  # 跳过空行
                 
-                if in_chart_group or is_next_group_start:
-                    current_group_caption = caption_text
-                    #print(f"设置图表组caption: {caption_text[:30]}...")
-                else:
-                    current_caption = caption_text
-                    #print(f"设置单图表caption: {caption_text[:30]}...")
+            is_next_group_start = k < len(lines) and "<!-- chart-group-start -->" in lines[k].strip()
+            
+            if in_chart_group or is_next_group_start:
+                current_group_caption = caption_text
+                #print(f"设置图表组caption: {caption_text[:30]}...")
+            else:
+                current_caption = caption_text
+                #print(f"设置单图表caption: {caption_text[:30]}...")
         
         # 识别图表组开始标记
         elif '<!-- chart-group-start -->' in line:
@@ -234,20 +221,16 @@ def parse_markdown_direct(md_path):
         # 识别图表组结束标记
         elif '<!-- chart-group-end -->' in line:
             if in_chart_group and current_group_charts and current_section:
-                # 检查是否是无价值图表组
-                if current_group_caption == "SKIP_NO_VALUE":
-                    print(f"⚠️ 跳过无价值图表组，包含 {len(current_group_charts)} 个图表")
-                else:
-                    # 创建图表组对象
-                    chart_group = {
-                        "is_chart_group": True,
-                        "charts": current_group_charts,
-                        "group_caption": current_group_caption
-                    }
-                    
-                    # 添加到章节
-                    current_section["charts"].append(chart_group)
-                    print(f"添加图表组，包含 {len(current_group_charts)} 个图表, caption: '{current_group_caption[:50]}...'")
+                # 创建图表组对象
+                chart_group = {
+                    "is_chart_group": True,
+                    "charts": current_group_charts,
+                    "group_caption": current_group_caption
+                }
+                
+                # 添加到章节
+                current_section["charts"].append(chart_group)
+                #print(f"添加图表组，包含 {len(current_group_charts)} 个图表, caption: '{current_group_caption[:50]}...'")
             
             in_chart_group = False
             current_group_charts = []
@@ -255,15 +238,6 @@ def parse_markdown_direct(md_path):
         
         # 识别图片 (![alt](src) 格式)
         elif line.startswith('![') and '](' in line and line.endswith(')'):
-            # 检查是否应该跳过无价值图表
-            if current_caption == "SKIP_NO_VALUE" or current_group_caption == "SKIP_NO_VALUE":
-                print(f"⚠️ 跳过无价值图表: {line}")
-                # 重置标记，但不处理这个图表
-                if not in_chart_group:
-                    current_caption = ""
-                i += 1
-                continue
-            
             # 提取图片信息
             alt_start = line.find('![') + 2
             alt_end = line.find('](')

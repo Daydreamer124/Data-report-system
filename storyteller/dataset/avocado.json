@@ -1,0 +1,250 @@
+{
+  "name": "avocado.csv",
+  "dataset_description": "This dataset contains information about avocado sales in various regions across the United States. It includes data on the average price of avocados, total volume sold, and the volume of different types of avocados (identified by PLU codes 4046, 4225, and 4770). The dataset also details the number of bags sold, categorized into small, large, and extra-large bags. The data spans from January 4, 2015, to March 25, 2018, covering a period of 1176 days. Important categorical columns include 'type', which has 2 categories, and 'region', which has 54 categories. Key numerical columns such as 'Average Price' range from $0.44 to $3.25, and 'Total Volume' ranges from 84.56 to 62,505,646.52 units.",
+  "total_rows": 18249,
+  "total_columns": 14,
+  "fields_info": {
+    "Unnamed: 0": {
+      "dtype": "int64",
+      "num_unique_values": 53,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "Date": {
+      "dtype": "object",
+      "num_unique_values": 169,
+      "missing_values": 0,
+      "semantic_type": "DATETIME"
+    },
+    "AveragePrice": {
+      "dtype": "float64",
+      "num_unique_values": 259,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "Total Volume": {
+      "dtype": "float64",
+      "num_unique_values": 18237,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "4046": {
+      "dtype": "float64",
+      "num_unique_values": 17702,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "4225": {
+      "dtype": "float64",
+      "num_unique_values": 18103,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "4770": {
+      "dtype": "float64",
+      "num_unique_values": 12071,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "Total Bags": {
+      "dtype": "float64",
+      "num_unique_values": 18097,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "Small Bags": {
+      "dtype": "float64",
+      "num_unique_values": 17321,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "Large Bags": {
+      "dtype": "float64",
+      "num_unique_values": 15082,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "XLarge Bags": {
+      "dtype": "float64",
+      "num_unique_values": 5588,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "type": {
+      "dtype": "object",
+      "num_unique_values": 2,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    },
+    "year": {
+      "dtype": "object",
+      "num_unique_values": 1,
+      "missing_values": 0,
+      "semantic_type": "DATETIME"
+    },
+    "region": {
+      "dtype": "object",
+      "num_unique_values": 54,
+      "missing_values": 0,
+      "semantic_type": "CATEGORY"
+    }
+  },
+  "categorical_details": {
+    "type": {
+      "unique_values": {
+        "conventional": 9126,
+        "organic": 9123
+      },
+      "total_categories": 2
+    },
+    "region": {
+      "unique_values": {
+        "Albany": 338,
+        "Sacramento": 338,
+        "Northeast": 338,
+        "NorthernNewEngland": 338,
+        "Orlando": 338,
+        "Philadelphia": 338,
+        "PhoenixTucson": 338,
+        "Pittsburgh": 338,
+        "Plains": 338,
+        "Portland": 338,
+        "HarrisburgScranton": 338,
+        "HartfordSpringfield": 338,
+        "Houston": 338,
+        "Indianapolis": 338,
+        "Jacksonville": 338,
+        "LasVegas": 338,
+        "LosAngeles": 338,
+        "Louisville": 338,
+        "MiamiFtLauderdale": 338,
+        "WestTexNewMexico": 335
+      },
+      "total_categories": 54
+    }
+  },
+  "numerical_details": {
+    "Unnamed: 0": {
+      "min": 0.0,
+      "max": 52.0,
+      "mean": 24.232231903117977,
+      "std": 15.481044753757223,
+      "quartiles": {
+        "25%": 10.0,
+        "50%": 24.0,
+        "75%": 38.0
+      }
+    },
+    "AveragePrice": {
+      "min": 0.44,
+      "max": 3.25,
+      "mean": 1.405978409775878,
+      "std": 0.40267655549555004,
+      "quartiles": {
+        "25%": 1.1,
+        "50%": 1.37,
+        "75%": 1.66
+      }
+    },
+    "Total Volume": {
+      "min": 84.56,
+      "max": 62505646.52,
+      "mean": 850644.0130089321,
+      "std": 3453545.3553994815,
+      "quartiles": {
+        "25%": 10838.58,
+        "50%": 107376.76,
+        "75%": 432962.29
+      }
+    },
+    "4046": {
+      "min": 0.0,
+      "max": 22743616.17,
+      "mean": 293008.4245306592,
+      "std": 1264989.0817627658,
+      "quartiles": {
+        "25%": 854.07,
+        "50%": 8645.3,
+        "75%": 111020.2
+      }
+    },
+    "4225": {
+      "min": 0.0,
+      "max": 20470572.61,
+      "mean": 295154.56835607433,
+      "std": 1204120.4011350493,
+      "quartiles": {
+        "25%": 3008.78,
+        "50%": 29061.02,
+        "75%": 150206.86
+      }
+    },
+    "4770": {
+      "min": 0.0,
+      "max": 2546439.11,
+      "mean": 22839.73599265713,
+      "std": 107464.06843537689,
+      "quartiles": {
+        "25%": 0.0,
+        "50%": 184.99,
+        "75%": 6243.42
+      }
+    },
+    "Total Bags": {
+      "min": 0.0,
+      "max": 19373134.37,
+      "mean": 239639.20205983886,
+      "std": 986242.3992164129,
+      "quartiles": {
+        "25%": 5088.64,
+        "50%": 39743.83,
+        "75%": 110783.37
+      }
+    },
+    "Small Bags": {
+      "min": 0.0,
+      "max": 13384586.8,
+      "mean": 182194.68669570936,
+      "std": 746178.5149617859,
+      "quartiles": {
+        "25%": 2849.42,
+        "50%": 26362.82,
+        "75%": 83337.67
+      }
+    },
+    "Large Bags": {
+      "min": 0.0,
+      "max": 5719096.61,
+      "mean": 54338.08814455587,
+      "std": 243965.9645474206,
+      "quartiles": {
+        "25%": 127.47,
+        "50%": 2647.71,
+        "75%": 22029.25
+      }
+    },
+    "XLarge Bags": {
+      "min": 0.0,
+      "max": 551693.65,
+      "mean": 3106.426507205874,
+      "std": 17692.894651914357,
+      "quartiles": {
+        "25%": 0.0,
+        "50%": 0.0,
+        "75%": 132.5
+      }
+    }
+  },
+  "datetime_details": {
+    "Date": {
+      "min_date": "2015-01-04",
+      "max_date": "2018-03-25",
+      "date_range_days": 1176
+    },
+    "year": {
+      "min_date": "1970-01-01",
+      "max_date": "1970-01-01",
+      "date_range_days": 0
+    }
+  }
+}

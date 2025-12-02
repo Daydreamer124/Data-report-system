@@ -1,0 +1,415 @@
+{
+  "name": "us-employment.csv",
+  "dataset_description": "This dataset contains information about employment statistics in the United States from January 2006 to December 2015. It includes monthly data on various sectors such as nonfarm, private, goods producing, and service providing employment, among others. The dataset does not contain any categorical columns. Important numerical columns include 'nonfarm', 'private', and 'goods_producing', with employment figures ranging from approximately 129,726 to 143,093 for nonfarm employment. The time span of the data covers 3621 days, providing a comprehensive view of employment trends over nearly a decade.",
+  "total_rows": 120,
+  "total_columns": 24,
+  "fields_info": {
+    "month": {
+      "dtype": "object",
+      "num_unique_values": 120,
+      "missing_values": 0,
+      "semantic_type": "DATETIME"
+    },
+    "nonfarm": {
+      "dtype": "int64",
+      "num_unique_values": 120,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "private": {
+      "dtype": "int64",
+      "num_unique_values": 120,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "goods_producing": {
+      "dtype": "int64",
+      "num_unique_values": 118,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "service_providing": {
+      "dtype": "int64",
+      "num_unique_values": 120,
+      "missing_values": 0,
+      "semantic_type": "ID"
+    },
+    "private_service_providing": {
+      "dtype": "int64",
+      "num_unique_values": 120,
+      "missing_values": 0,
+      "semantic_type": "ID"
+    },
+    "mining_and_logging": {
+      "dtype": "int64",
+      "num_unique_values": 103,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "construction": {
+      "dtype": "int64",
+      "num_unique_values": 116,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "manufacturing": {
+      "dtype": "int64",
+      "num_unique_values": 117,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "durable_goods": {
+      "dtype": "int64",
+      "num_unique_values": 117,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "nondurable_goods": {
+      "dtype": "int64",
+      "num_unique_values": 96,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "trade_transportation_utilties": {
+      "dtype": "int64",
+      "num_unique_values": 115,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "wholesale_trade": {
+      "dtype": "float64",
+      "num_unique_values": 118,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "retail_trade": {
+      "dtype": "float64",
+      "num_unique_values": 119,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "transportation_and_warehousing": {
+      "dtype": "float64",
+      "num_unique_values": 120,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "utilities": {
+      "dtype": "float64",
+      "num_unique_values": 86,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "information": {
+      "dtype": "int64",
+      "num_unique_values": 90,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "financial_activities": {
+      "dtype": "int64",
+      "num_unique_values": 113,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "professional_and_business_services": {
+      "dtype": "int64",
+      "num_unique_values": 117,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "education_and_health_services": {
+      "dtype": "int64",
+      "num_unique_values": 120,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "leisure_and_hospitality": {
+      "dtype": "int64",
+      "num_unique_values": 116,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "other_services": {
+      "dtype": "int64",
+      "num_unique_values": 100,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "government": {
+      "dtype": "int64",
+      "num_unique_values": 110,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "nonfarm_change": {
+      "dtype": "int64",
+      "num_unique_values": 101,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    }
+  },
+  "categorical_details": {},
+  "numerical_details": {
+    "nonfarm": {
+      "min": 129726.0,
+      "max": 143093.0,
+      "mean": 135658.56666666668,
+      "std": 3577.7825998308867,
+      "quartiles": {
+        "25%": 132504.0,
+        "50%": 136269.0,
+        "75%": 138054.25
+      }
+    },
+    "private": {
+      "min": 107250.0,
+      "max": 120993.0,
+      "mean": 113508.44166666667,
+      "std": 3706.2989122331633,
+      "quartiles": {
+        "25%": 110319.25,
+        "50%": 114283.0,
+        "75%": 115852.5
+      }
+    },
+    "goods_producing": {
+      "min": 17627.0,
+      "max": 22631.0,
+      "mean": 19643.558333333334,
+      "std": 1694.2061515540504,
+      "quartiles": {
+        "25%": 18297.5,
+        "50%": 19071.5,
+        "75%": 21390.75
+      }
+    },
+    "service_providing": {
+      "min": 111989.0,
+      "max": 123356.0,
+      "mean": 116015.00833333333,
+      "std": 2999.7410574405717,
+      "quartiles": {
+        "25%": 113675.25,
+        "50%": 115593.5,
+        "75%": 117588.5
+      }
+    },
+    "private_service_providing": {
+      "min": 89507.0,
+      "max": 101256.0,
+      "mean": 93864.88333333333,
+      "std": 3149.6257432287034,
+      "quartiles": {
+        "25%": 91583.5,
+        "50%": 93473.0,
+        "75%": 95754.75
+      }
+    },
+    "mining_and_logging": {
+      "min": 656.0,
+      "max": 904.0,
+      "mean": 777.4,
+      "std": 74.7769119088362,
+      "quartiles": {
+        "25%": 714.0,
+        "50%": 769.0,
+        "75%": 851.0
+      }
+    },
+    "construction": {
+      "min": 5427.0,
+      "max": 7726.0,
+      "mean": 6365.475,
+      "std": 811.1038848228935,
+      "quartiles": {
+        "25%": 5631.25,
+        "50%": 6105.5,
+        "75%": 7173.25
+      }
+    },
+    "manufacturing": {
+      "min": 11453.0,
+      "max": 14226.0,
+      "mean": 12500.683333333332,
+      "std": 916.5942531622004,
+      "quartiles": {
+        "25%": 11796.5,
+        "50%": 12128.0,
+        "75%": 13448.5
+      }
+    },
+    "durable_goods": {
+      "min": 6985.0,
+      "max": 9028.0,
+      "mean": 7832.866666666667,
+      "std": 654.0431966477692,
+      "quartiles": {
+        "25%": 7330.75,
+        "50%": 7613.0,
+        "75%": 8501.5
+      }
+    },
+    "nondurable_goods": {
+      "min": 4434.0,
+      "max": 5228.0,
+      "mean": 4667.816666666667,
+      "std": 270.06933387195073,
+      "quartiles": {
+        "25%": 4466.75,
+        "50%": 4510.5,
+        "75%": 4947.0
+      }
+    },
+    "trade_transportation_utilties": {
+      "min": 24475.0,
+      "max": 27037.0,
+      "mean": 25840.566666666666,
+      "std": 760.9304646213053,
+      "quartiles": {
+        "25%": 25189.0,
+        "50%": 26010.0,
+        "75%": 26502.5
+      }
+    },
+    "wholesale_trade": {
+      "min": 5439.0,
+      "max": 6041.8,
+      "mean": 5751.1,
+      "std": 182.2535633246654,
+      "quartiles": {
+        "25%": 5599.299999999999,
+        "50%": 5769.5,
+        "75%": 5878.95
+      }
+    },
+    "retail_trade": {
+      "min": 14326.4,
+      "max": 15704.2,
+      "mean": 15066.603333333333,
+      "std": 413.58726674752245,
+      "quartiles": {
+        "25%": 14717.3,
+        "50%": 15164.3,
+        "75%": 15430.4
+      }
+    },
+    "transportation_and_warehousing": {
+      "min": 4117.2,
+      "max": 4950.9,
+      "mean": 4469.073333333334,
+      "std": 196.84619160263017,
+      "quartiles": {
+        "25%": 4326.75,
+        "50%": 4475.950000000001,
+        "75%": 4551.175
+      }
+    },
+    "utilities": {
+      "min": 546.6,
+      "max": 563.6,
+      "mean": 553.7441666666667,
+      "std": 3.796101402009923,
+      "quartiles": {
+        "25%": 551.375,
+        "50%": 553.3,
+        "75%": 556.05
+      }
+    },
+    "information": {
+      "min": 2634.0,
+      "max": 3055.0,
+      "mean": 2809.4,
+      "std": 143.66279378923318,
+      "quartiles": {
+        "25%": 2696.75,
+        "50%": 2737.0,
+        "75%": 2990.5
+      }
+    },
+    "financial_activities": {
+      "min": 7676.0,
+      "max": 8394.0,
+      "mean": 7991.691666666667,
+      "std": 246.45847131156293,
+      "quartiles": {
+        "25%": 7768.75,
+        "50%": 7932.5,
+        "75%": 8223.25
+      }
+    },
+    "professional_and_business_services": {
+      "min": 16392.0,
+      "max": 19892.0,
+      "mean": 17902.258333333335,
+      "std": 931.9516658566565,
+      "quartiles": {
+        "25%": 17296.0,
+        "50%": 17859.0,
+        "75%": 18529.25
+      }
+    },
+    "education_and_health_services": {
+      "min": 17946.0,
+      "max": 22318.0,
+      "mean": 20129.216666666667,
+      "std": 1185.6576459928897,
+      "quartiles": {
+        "25%": 19262.25,
+        "50%": 20143.5,
+        "75%": 21071.75
+      }
+    },
+    "leisure_and_hospitality": {
+      "min": 12927.0,
+      "max": 15408.0,
+      "mean": 13731.416666666666,
+      "std": 706.7023856651128,
+      "quartiles": {
+        "25%": 13151.5,
+        "50%": 13463.5,
+        "75%": 14261.0
+      }
+    },
+    "other_services": {
+      "min": 5315.0,
+      "max": 5652.0,
+      "mean": 5460.333333333333,
+      "std": 91.31737373084073,
+      "quartiles": {
+        "25%": 5381.75,
+        "50%": 5454.5,
+        "75%": 5522.75
+      }
+    },
+    "government": {
+      "min": 21810.0,
+      "max": 22996.0,
+      "mean": 22150.125,
+      "std": 276.1196781844283,
+      "quartiles": {
+        "25%": 21916.75,
+        "50%": 22070.0,
+        "75%": 22417.75
+      }
+    },
+    "nonfarm_change": {
+      "min": -802.0,
+      "max": 522.0,
+      "mean": 66.04166666666667,
+      "std": 261.3284869302091,
+      "quartiles": {
+        "25%": 11.0,
+        "50%": 154.5,
+        "75%": 233.25
+      }
+    }
+  },
+  "datetime_details": {
+    "month": {
+      "min_date": "2006-01-01",
+      "max_date": "2015-12-01",
+      "date_range_days": 3621
+    }
+  }
+}

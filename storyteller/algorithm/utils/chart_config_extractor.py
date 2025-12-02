@@ -934,7 +934,7 @@ class ChartConfigExtractor:
         
         # 添加图例配置（除了已有特定配置的图表类型）
         if chart_type not in ["pie", "boxplot"]:
-        g2_config["legend"] = {
+            g2_config["legend"] = {
             "position": "right",
             "itemName": {
                 "formatter": f"function(text) {{ return '{display_names.get(hue_field, '')}' || text; }}"
@@ -952,7 +952,7 @@ class ChartConfigExtractor:
         
         # 添加交互配置（除了已有特定配置的图表类型）
         if chart_type not in ["pie", "boxplot"] and not g2_config.get("interactions"):
-        g2_config["interactions"] = [
+            g2_config["interactions"] = [
             {"type": "element-active"},
             {"type": "legend-active"},
             {"type": "legend-filter"}

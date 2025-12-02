@@ -1,0 +1,67 @@
+{
+  "name": "lookup_people.csv",
+  "dataset_description": "This dataset contains information about individuals, including their names, ages, and heights. The dataset has 9 rows and 3 columns. The 'name' column is categorical and contains 9 unique values, representing the names of the individuals. The numerical columns 'age' and 'height' provide information about the age and height of the individuals, respectively. The 'age' column ranges from 21 to 63 years, with a mean of approximately 38.89 years and a standard deviation of 14.91 years. The 'height' column ranges from 160 to 182 cm, with a mean of approximately 173.89 cm and a standard deviation of 8.74 cm. There are no date columns in this dataset.",
+  "total_rows": 9,
+  "total_columns": 3,
+  "fields_info": {
+    "name": {
+      "dtype": "object",
+      "num_unique_values": 9,
+      "missing_values": 0,
+      "semantic_type": "TEXT"
+    },
+    "age": {
+      "dtype": "int64",
+      "num_unique_values": 9,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    },
+    "height": {
+      "dtype": "int64",
+      "num_unique_values": 8,
+      "missing_values": 0,
+      "semantic_type": "NUMERIC"
+    }
+  },
+  "categorical_details": {
+    "name": {
+      "unique_values": {
+        "Alan": 1,
+        "George": 1,
+        "Fred": 1,
+        "Steve": 1,
+        "Nick": 1,
+        "Will": 1,
+        "Cole": 1,
+        "Rick": 1,
+        "Tom": 1
+      },
+      "total_categories": 9
+    }
+  },
+  "numerical_details": {
+    "age": {
+      "min": 21.0,
+      "max": 63.0,
+      "mean": 38.888888888888886,
+      "std": 14.911777597292385,
+      "quartiles": {
+        "25%": 25.0,
+        "50%": 39.0,
+        "75%": 51.0
+      }
+    },
+    "height": {
+      "min": 160.0,
+      "max": 182.0,
+      "mean": 173.88888888888889,
+      "std": 8.738484485945554,
+      "quartiles": {
+        "25%": 168.0,
+        "50%": 179.0,
+        "75%": 180.0
+      }
+    }
+  },
+  "datetime_details": {}
+}

@@ -20,7 +20,8 @@ from storyteller.algorithm.mcts_action import (
     Charts2Captions,
     Captions2Summaries,
     ReviseNarrativeStrategy,
-    TransitionAction
+    TransitionAction,
+    GenerateReportSummaryAction
 )
 NODE_TYPE_TO_VALID_ACTIONS = {
     ReportGenerationState.EMPTY: [
@@ -47,10 +48,14 @@ NODE_TYPE_TO_VALID_ACTIONS = {
         TransitionAction
     ],
     ReportGenerationState.REVISECHAPTERSORDERS: [
-        TransitionAction
+        TransitionAction,
+        GenerateReportSummaryAction
     ], 
-    ReportGenerationState.FINALIZED: []  # 终止状态，添加过渡后的最终状态
-}
+    ReportGenerationState.ADDEDTRANSITIONS: [
+        GenerateReportSummaryAction
+    ], 
+    ReportGenerationState.FINALIZED: [
+    ]}
 from storyteller.algorithm.reward import StorytellingRewardModel
 from .utils.html2image import convert_html_file_to_image
 
@@ -604,13 +609,12 @@ class DataStorytellingMCTSSolver:
             script_dir = os.path.dirname(os.path.abspath(__file__))
             process_script = os.path.join(script_dir, "utils", "process_all_reports.py")
             
-            print(f"正在为 {output_dir} 生成所有风格的报告...")
+            print(f"正在为 {output_dir} 生成报告...")
             process_result = subprocess.run([
                 'python', 
                 process_script,
-                '--all',
                 '--dir', output_dir
-                # 默认使用AntV G2，无需添加额外参数
+                # 不再使用--all参数
             ], check=True, capture_output=True, text=True)
             
             # 将子进程输出写入日志
@@ -682,12 +686,12 @@ class DataStorytellingMCTSSolver:
         """生成 Markdown 报告"""
         markdown = []
         
-        # 1. 报告标题
-        markdown.append("# 数据分析报告\n")
+        # 1. 报告标题 - 使用原始查询作为标题
+        markdown.append(f"# {self.original_query}\n")
         
         # 2. 报告摘要
         if hasattr(node.report, 'key_abstract') and node.report.key_abstract:
-            markdown.append("## 摘要\n")
+            markdown.append("## Key Abstract\n")
             markdown.append(node.report.key_abstract + "\n")
         
         # 3. 章节内容
@@ -717,6 +721,12 @@ class DataStorytellingMCTSSolver:
                     group_id = group.get('group_id', 0)
                     chart_indices = group.get('chart_indices', [])
                     group_theme = group.get('theme', '图表组')
+                    
+                    # 过滤无价值图表组
+                    if "no insight" in group_theme.lower() or "no value" in group_theme.lower():
+                        print(f"⚠️ 跳过无价值图表组: {group_theme}，不包含在最终报告中")
+                        continue
+                    
                     group_captions = []
                     group_charts = []
                     
@@ -745,6 +755,17 @@ class DataStorytellingMCTSSolver:
                     group_charts = group_info['charts']
                     group_caption = group_info['caption']
                     group_theme = group_info['theme']
+                    
+                    # 增强过滤无价值图表组的逻辑
+                    if ("no insight" in group_theme.lower() or 
+                        "no value" in group_theme.lower() or 
+                        "lacks clear insight" in group_theme.lower() or
+                        "lacks insight value" in group_theme.lower() or
+                        "will not be included" in group_caption.lower() or
+                        "无价值" in group_theme.lower() or 
+                        "无洞察" in group_theme.lower()):
+                        print(f"⚠️ 跳过无价值图表组: {group_theme}，不包含在最终报告中")
+                        continue
                     
                     # 添加组标题（可选）
                     markdown.append(f"\n### {group_theme}\n")
@@ -793,15 +814,9 @@ class DataStorytellingMCTSSolver:
                 markdown.append("\n### Chapter Summary\n")
                 markdown.append(chapter.summary + "\n")
         
-        # 4. 报告总结
-        if hasattr(node.report, 'brief_conclusion') and node.report.brief_conclusion:
-            markdown.append("\n## 总结与建议\n")
-            markdown.append(node.report.brief_conclusion + "\n")
+        # # 4. 报告总结
+        # if hasattr(node.report, 'brief_conclusion') and node.report.brief_conclusion:
+        #     markdown.append("\n## brief_conclusion\n")
+        #     markdown.append(node.report.brief_conclusion + "\n")
         
         return "\n".join(markdown)
-
-    def _generate_html_report(self, markdown_content: str, output_dir: str) -> str:
-        """
-        此方法不再使用，保留作为历史记录
-        """
-        return ""

@@ -163,24 +163,24 @@ def evaluate_report(
             
             # 计算加权分数 - 所有维度权重相等 (25%)
             weighted_score = (
-                0.3 * result["informativeness"]["score"] +
-                0.3 * result["clarity_coherence"]["score"] +
-                0.2 * result["visualization_quality"]["score"] +
-                0.2 * result["narrative_quality"]["score"]
+                0.25 * result["informativeness"]["score"] +
+                0.25 * result["clarity_coherence"]["score"] +
+                0.25 * result["visualization_quality"]["score"] +
+                0.25 * result["narrative_quality"]["score"]
             )
             
             # 打印评估结果
             print("\n📊 报告评估结果:")
-            print(f"- 信息丰富度 (30%): {result['informativeness']['score']}/10")
+            print(f"- 信息丰富度 (25%): {result['informativeness']['score']}/10")
             print(f"  理由: {result['informativeness']['rationale'][:200]}...")
             
-            print(f"\n- 清晰度与连贯性 (30%): {result['clarity_coherence']['score']}/10")
+            print(f"\n- 清晰度与连贯性 (25%): {result['clarity_coherence']['score']}/10")
             print(f"  理由: {result['clarity_coherence']['rationale'][:200]}...")
             
-            print(f"\n- 可视化质量 (30%): {result['visualization_quality']['score']}/10")
+            print(f"\n- 可视化质量 (25%): {result['visualization_quality']['score']}/10")
             print(f"  理由: {result['visualization_quality']['rationale'][:200]}...")
             
-            print(f"\n- 叙事质量 (30%): {result['narrative_quality']['score']}/10")
+            print(f"\n- 叙事质量 (25%): {result['narrative_quality']['score']}/10")
             print(f"  理由: {result['narrative_quality']['rationale'][:200]}...")
             
             print(f"\n✨ 加权总分: {weighted_score:.2f}/10")
